@@ -11,7 +11,7 @@ func main() {
 	r := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
+	config.AllowOrigins = []string{"http://localhost:3000"}
 	config.AddAllowHeaders(
 		"Authorization",
 		"Access-Token",
