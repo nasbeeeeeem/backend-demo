@@ -1,0 +1,35 @@
+# openapi2-run.yaml
+swagger: '2.0'
+info:
+  title: demoapi
+  description: Sample API on API Gateway with a Cloud Run backend
+  version: 1.0.0
+schemes:
+- https
+produces:
+- application/json
+x-google-endpoints:
+- name: "hello-api.apigateway.api-gateway-demo-404010.cloud.goog"
+  allowCors: True
+x-google-backend:
+  address: https://backend-demo-747dpngw3q-an.a.run.app
+securityDefinitions:
+  google_id_token:
+    authorizationUrl: ""
+    flow: "implicit"
+    type: "oauth2"
+    x-google-issuer: "https://accounts.google.com"
+    x-google-jwks_uri: "https://www.googleapis.com/oauth2/v3/certs"
+    x-google-audiences: "811974289373-2hp30dkitujdqh6402ckibg442fj94ph.apps.googleusercontent.com"
+security:
+  - google_id_token: []
+paths:
+  /hellow:
+    get:
+      summary: Cloud Run hello world
+      operationId: hello
+      responses:
+        '200':
+          description: A successful response
+          schema:
+            type: string
