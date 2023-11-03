@@ -20,7 +20,7 @@ func main() {
 
 	r.Use(cors.New(config))
 
-	r.GET("/hellow", func(ctx *gin.Context) {
+	r.GET("/hello", func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("Access-Token")
 		ctx.JSON(200, gin.H{"token": token})
 	})

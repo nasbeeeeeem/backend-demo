@@ -27,7 +27,7 @@ paths:
   /hellow:
     get:
       summary: Cloud Run hello world
-      operationId: hello
+      # operationId: hello
       responses:
         '200':
           description: A successful response
