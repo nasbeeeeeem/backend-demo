@@ -24,7 +24,7 @@ securityDefinitions:
 security:
   - google_id_token: []
 paths:
-  /hellow:
+  /hello:
     get:
       summary: Cloud Run hello world
       # operationId: hello
