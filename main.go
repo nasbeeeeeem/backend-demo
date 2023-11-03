@@ -23,8 +23,8 @@ func main() {
 		},
 		// 許可するHTTPリクエストヘッダ
 		AllowHeaders: []string{
+			"Authorization",
 			"Access-Token",
-			"Access-Control-Allow-Origin",
 		},
 		// cookieなどの情報を必要とするかどうか
 		AllowCredentials: true,
