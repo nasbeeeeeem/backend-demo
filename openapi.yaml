@@ -27,7 +27,7 @@ paths:
   /hello:
     get:
       summary: Cloud Run hello world
-      # operationId: hello
+      operationId: baka
       responses:
         '200':
           description: A successful response

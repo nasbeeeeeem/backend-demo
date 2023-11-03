@@ -15,6 +15,7 @@ func main() {
 	config.AddAllowHeaders(
 		"Authorization",
 		"Access-Token",
+		"Access-Control-Allow-Headers",
 	)
 	config.AllowCredentials = true
 
