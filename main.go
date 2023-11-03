@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gin-contrib/cors"
@@ -16,6 +17,7 @@ func main() {
 		"Authorization",
 		"Access-Token",
 		"Access-Control-Allow-Headers",
+		"Access-Control-Allow-Origin",
 	)
 	config.AllowCredentials = true
 
@@ -23,6 +25,7 @@ func main() {
 
 	r.GET("/hello", func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("Access-Token")
+		fmt.Print(ctx)
 		ctx.JSON(200, gin.H{"token": token})
 	})
 

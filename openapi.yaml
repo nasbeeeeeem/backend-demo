@@ -1,5 +1,6 @@
 # openapi2-run.yaml
 swagger: '2.0'
+host: "hello-api.apigateway.api-gateway-demo-404010.cloud.goog"
 info:
   title: demoapi
   description: Sample API on API Gateway with a Cloud Run backend
@@ -25,6 +26,16 @@ security:
   - google_id_token: []
 paths:
   /hello:
+    options:
+      summary: cors
+      operationId: corsHello
+      x-google-backend:
+        address: https://backend-demo-747dpngw3q-an.a.run.app/hello
+      responses:
+        '200':
+          description: A successful response
+          schema:
+            type: string
     get:
       summary: Cloud Run hello world
       operationId: baka
