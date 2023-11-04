@@ -20,13 +20,14 @@ func Server() {
 
 	// CORSの設定
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000", "https://fetch-api-sample-747dpngw3q-an.a.run.app/"}
+	config.AllowOrigins = []string{"http://localhost:3000", "https://fetch-api-sample-747dpngw3q-an.a.run.app"}
 	config.AddAllowHeaders(
 		"Authorization",
 		"Access-Token",
 		"Access-Control-Allow-Headers",
 		"Access-Control-Allow-Origin",
 	)
+
 	config.AllowCredentials = true
 	r.Use(cors.New(config))
 
