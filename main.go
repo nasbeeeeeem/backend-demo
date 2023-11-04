@@ -28,10 +28,13 @@ func main() {
 	r.GET("/hello", func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("Access-Token")
 		jwt := ctx.Request.Header.Get("X-Apigateway-Api-Userinfo")
-		encStr := base64.StdEncoding.EncodeToString([]byte(jwt))
+		decStr, err := base64.StdEncoding.DecodeString(jwt)
+		if err != nil {
+			log.Fatal(err)
+		}
 		log.Println(token)
 		log.Println(jwt)
-		log.Println(encStr)
+		log.Println(decStr)
 
 		ctx.JSON(200, gin.H{"token": token})
 	})
