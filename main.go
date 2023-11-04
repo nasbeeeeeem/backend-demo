@@ -1,7 +1,6 @@
 package main
 
 import (
-	"backend-demo/pkg/handler"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -68,7 +67,7 @@ func main() {
 		ctx.JSON(200, gin.H{"token": token, "name": p.Name, "email": p.Email})
 
 	})
-	r.GET("/users/me", handler.HandleMe)
+	// r.GET("/me", handler.HandleMe)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal(err)
