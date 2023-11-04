@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend-demo/pkg/handler"
 	"log"
 
 	"github.com/gin-contrib/cors"
@@ -27,8 +28,9 @@ func main() {
 		jwt := ctx.Request.Header.Get("X-Apigateway-Api-Userinfo")
 		log.Println(token)
 		log.Println(jwt)
-		ctx.JSON(200, gin.H{"token": token, "jwt": jwt})
+		ctx.JSON(200, gin.H{"token": token})
 	})
+	r.GET("/users/me", handler.HandleMe)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal(err)
