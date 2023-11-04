@@ -1,12 +1,15 @@
 swagger: "2.0"
 info:
-  title: "API Gatewayテスト"
-  description: "Access-Tokenヘッダーの値を返すAPI"
+  title: "Backend Demo"
+  description: "バックエンドAPIのデモ"
   version: 1.0.0
 schemes:
   - https
 produces:
   - application/json
+tags:
+  - name: users
+    description: "ユーザーに関する情報"
 x-google-endpoints:
   - name: "ignore cors"
     allowCors: True
@@ -26,11 +29,12 @@ securityDefinitions:
     x-google-jwks_uri: "https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com"
     x-google-audiences: "api-gateway-demo-404010"
 paths:
-  /hello:
+  /users/me:
     # プリフライトリクエストで使用
     options:
-      summary: "corsをパスするために設定"
-      # operationIdは何でもOK(ログで識別しやすくするためのID?)
+      tags:
+        - users
+      summary: ""
       operationId: corsHello
       x-google-backend:
         address: "https://backend-demo-747dpngw3q-an.a.run.app/hello"
@@ -38,15 +42,15 @@ paths:
         200:
           description: "成功"
     get:
-      summary: "Access-Tokenヘッダーの値を返す"
+      tags:
+        - users
+      summary: "自身の情報を取得"
       security:
         - google_id_token: []
         - firebase: []
-      # operationIdは何でもOK(ログで識別しやすくするためのID?)
       operationId: hello
       x-google-backend:
-        # Cloud Run(API本体)のURL
-        address: "https://backend-demo-747dpngw3q-an.a.run.app/hello"
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/users/me"
       responses:
         "200":
           description: "成功"
@@ -54,3 +58,5 @@ paths:
             type: object
             properties:
               token: { type: string, example: "アクセストークン" }
+              name: { type: string, example: "ユーザー名" }
+              email: { type: string, example: "Emailアドレス" }
