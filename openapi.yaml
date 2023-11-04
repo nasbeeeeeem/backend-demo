@@ -35,7 +35,7 @@ paths:
       tags:
         - users
       summary: ""
-      operationId: corsHello
+      operationId: corsMe
       x-google-backend:
         address: "https://backend-demo-747dpngw3q-an.a.run.app/users/me"
       responses:
@@ -48,7 +48,7 @@ paths:
       security:
         - google_id_token: []
         - firebase: []
-      operationId: hello
+      operationId: me
       x-google-backend:
         address: "https://backend-demo-747dpngw3q-an.a.run.app/users/me"
       responses:
@@ -57,6 +57,5 @@ paths:
           schema:
             type: object
             properties:
-              token: { type: string, example: "アクセストークン" }
               name: { type: string, example: "ユーザー名" }
               email: { type: string, example: "Emailアドレス" }
