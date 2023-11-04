@@ -46,7 +46,7 @@ func main() {
 	r.GET("/users/me", func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("Access-Token")
 		jwt := ctx.Request.Header.Get("X-Apigateway-Api-Userinfo")
-		dec, err := base64.StdEncoding.DecodeString(jwt)
+		dec, err := base64.URLEncoding.DecodeString(jwt)
 		if err != nil {
 			log.Fatal(err)
 		}
