@@ -1,12 +1,14 @@
 {
   "configurations": [
     {
-      "name": "Cloud Run: Run/Debug Locally",
+      "name": "Cloud Run: Run/backend-demo",
       "type": "cloudcode.cloudrun",
       "request": "launch",
       "build": {
         "docker": {
-          "path": "Dockerfile"
+          "path": "Dockerfile",
+          "target": "Dockerfile",
+          "buildArgs": {}
         }
       },
       "image": "backend-demo",
@@ -22,8 +24,8 @@
       "target": {
         "minikube": {}
       },
-      "watch": true,
-      "externalPortForward": 8080
+      "watch": false,
+      "externalPortForward": 3000
     }
   ]
 }
