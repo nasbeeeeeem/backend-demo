@@ -37,7 +37,7 @@ paths:
       summary: ""
       operationId: corsHello
       x-google-backend:
-        address: "https://backend-demo-747dpngw3q-an.a.run.app/hello"
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/users/me"
       responses:
         200:
           description: "成功"
