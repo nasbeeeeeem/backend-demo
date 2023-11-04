@@ -1,46 +1,38 @@
-# openapi2-run.yaml
-swagger: '2.0'
-# host: "hello-api.apigateway.api-gateway-demo-404010.cloud.goog"
+swagger: "2.0"
 info:
-  title: demoapi
-  description: Sample API on API Gateway with a Cloud Run backend
+  title: "API Gatewayテスト"
+  description: "Access-Tokenヘッダーの値を返すAPI"
   version: 1.0.0
 schemes:
   - https
 produces:
   - application/json
 x-google-endpoints:
-  - name: "hello-api.apigateway.api-gateway-demo-404010.cloud.goog"
+  - name: "ignore cors"
     allowCors: True
-# x-google-backend:
-#   address: https://backend-demo-747dpngw3q-an.a.run.app
-securityDefinitions:
-  google_id_token:
-    authorizationUrl: ""
-    flow: "implicit"
-    type: "oauth2"
-    x-google-issuer: "https://accounts.google.com"
-    x-google-jwks_uri: "https://www.googleapis.com/oauth2/v3/certs"
-    x-google-audiences: "811974289373-2hp30dkitujdqh6402ckibg442fj94ph.apps.googleusercontent.com"
-security:
-  - google_id_token: []
 paths:
   /hello:
+    # プリフライトリクエストで使用
     options:
-      summary: cors
+      summary: "corsをパスするために設定"
+      # operationIdは何でもOK(ログで識別しやすくするためのID?)
       operationId: corsHello
       x-google-backend:
-        address: https://backend-demo-747dpngw3q-an.a.run.app/hello
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/hello"
       responses:
-        '200':
-          description: A successful response
-          schema:
-            type: string
+        200:
+          description: "成功"
     get:
-      summary: Cloud Run hello world
+      summary: "Access-Tokenヘッダーの値を返す"
+      # operationIdは何でもOK(ログで識別しやすくするためのID?)
       operationId: hello
+      x-google-backend:
+        # Cloud Run(API本体)のURL
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/hello"
       responses:
-        '200':
-          description: A successful response
+        "200":
+          description: "成功"
           schema:
-            type: string
+            type: object
+            properties:
+              token: { type: string, example: "アクセストークン" }
