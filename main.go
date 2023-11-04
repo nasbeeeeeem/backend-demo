@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -32,9 +33,14 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Println(token)
-		log.Println(jwt)
-		log.Println(decStr)
+
+		logger, _ := zap.NewProduction()
+		defer logger.Sync()
+		logger.Info("auth-token",
+			zap.String("token", token),
+			zap.String("jwt", jwt),
+			zap.String("decode", string(decStr)),
+		)
 
 		ctx.JSON(200, gin.H{"token": token})
 	})
