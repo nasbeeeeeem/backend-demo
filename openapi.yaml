@@ -10,6 +10,21 @@ produces:
 x-google-endpoints:
   - name: "ignore cors"
     allowCors: True
+securityDefinitions:
+  google_id_token:
+    authorizationUrl: ""
+    flow: "implicit"
+    type: "oauth2"
+    x-google-issuer: "https://accounts.google.com"
+    x-google-jwks_uri: "https://www.googleapis.com/oauth2/v3/certs"
+    x-google-audiences: "811974289373-2hp30dkitujdqh6402ckibg442fj94ph.apps.googleusercontent.com"
+  firebase:
+    authorizationUrl: ""
+    flow: "implicit"
+    type: "oauth2"
+    x-google-issuer: "https://securetoken.google.com/api-gateway-demo-404010"
+    x-google-jwks_uri: "https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+    x-google-audiences: "api-gateway-demo-404010"
 paths:
   /hello:
     # プリフライトリクエストで使用
@@ -24,6 +39,9 @@ paths:
           description: "成功"
     get:
       summary: "Access-Tokenヘッダーの値を返す"
+      security:
+        - google_id_token: []
+        - firebase: []
       # operationIdは何でもOK(ログで識別しやすくするためのID?)
       operationId: hello
       x-google-backend:
