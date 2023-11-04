@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend-demo/pkg/handler"
+	"fmt"
 	"log"
 
 	"github.com/gin-contrib/cors"
@@ -10,7 +11,7 @@ import (
 
 func main() {
 	r := gin.Default()
-
+	fmt.Println("server running...")
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"http://localhost:3000"}
 	config.AddAllowHeaders(
