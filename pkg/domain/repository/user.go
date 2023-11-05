@@ -1,4 +1,4 @@
-package repossitory
+package repository
 
 import (
 	"backend-demo/pkg/domain/model"
