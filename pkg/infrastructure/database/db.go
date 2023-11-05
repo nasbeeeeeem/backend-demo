@@ -5,6 +5,7 @@ import (
 	"context"
 
 	"entgo.io/ent/dialect"
+	_ "github.com/lib/pq"
 )
 
 type Client struct {
