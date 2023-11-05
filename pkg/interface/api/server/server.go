@@ -1,7 +1,10 @@
 package server
 
 import (
+	"backend-demo/pkg/infrastructure/database"
+	"backend-demo/pkg/infrastructure/repositoryimpl"
 	"backend-demo/pkg/interface/api/handler"
+	"backend-demo/pkg/usecase"
 	"log"
 	"net/http"
 
@@ -15,7 +18,17 @@ func Ping(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "pong"})
 }
 
+// サーバーの起動処理
 func Server() {
+	// 依存性の注入
+	dbClient, err := database.NewClient()
+	if err != nil {
+		panic(err)
+	}
+	userRepoImpl := repositoryimpl.NewUserRepoImpl(dbClient)
+	userUseCase := usecase.NewUseCase(userRepoImpl)
+	userHandler := handler.NewHandler(userUseCase)
+
 	r = gin.Default()
 
 	// CORSの設定
@@ -27,7 +40,6 @@ func Server() {
 		"Access-Control-Allow-Headers",
 		"Access-Control-Allow-Origin",
 	)
-
 	config.AllowCredentials = true
 	r.Use(cors.New(config))
 
@@ -35,9 +47,9 @@ func Server() {
 	users := r.Group("/users")
 	{
 		// 全ユーザの取得
-		users.GET("/")
+		users.GET("/", userHandler.HandleUsers)
 		// 自分の取得
-		users.GET("/me", handler.HandleMe)
+		users.GET("/me", userHandler.HandleMeInfo)
 	}
 
 	// 支払い関係のエンドポイント
