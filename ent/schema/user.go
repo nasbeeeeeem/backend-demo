@@ -18,9 +18,9 @@ func (User) Fields() []ent.Field {
 		field.String("name").NotEmpty(),
 		field.String("email").NotEmpty().Unique(),
 		field.String("photo_url").Optional(),
-		field.Time("created_at").Default(time.Now()).Immutable(),
-		field.Time("updated_at").Default(time.Now()).UpdateDefault(time.Now()),
-		field.Time("deleted_at").Nillable(),
+		field.Time("created_at").Default(time.Now).Immutable(),
+		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
+		field.Time("deleted_at").Nillable().Optional(),
 	}
 }
 

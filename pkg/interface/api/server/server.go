@@ -46,6 +46,8 @@ func Server() {
 	// ユーザー関係のエンドポイント
 	users := r.Group("/users")
 	{
+		// ユーザーの作成
+		users.POST("/", userHandler.HandleCreate)
 		// 全ユーザの取得
 		users.GET("/", userHandler.HandleUsers)
 		// 自分の取得

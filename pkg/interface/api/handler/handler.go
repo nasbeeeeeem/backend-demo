@@ -11,12 +11,32 @@ import (
 )
 
 type Handler interface {
+	HandleCreate(c *gin.Context)
 	HandleUsers(c *gin.Context)
 	HandleMeInfo(c *gin.Context)
 }
 
 type handler struct {
 	useCase usecase.UseCase
+}
+
+func (h *handler) HandleCreate(c *gin.Context) {
+	type request struct {
+		Name  string `json:"name"`
+		Email string `json:"email"`
+	}
+
+	r := new(request)
+	if err := c.Bind(&r); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+	}
+
+	newUser, err := h.useCase.Create(c, r.Name, r.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": newUser})
 }
 
 // handleByEmail implements Handler.

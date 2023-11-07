@@ -13,12 +13,12 @@ type Client struct {
 }
 
 func NewClient() (*Client, error) {
-	dsn := ""
+	dsn := "postgres://nasbeeeeeem:j1qzFMinVZY2@ep-yellow-snow-32012490.ap-southeast-1.aws.neon.tech/demo"
 	db, err := ent.Open(dialect.Postgres, dsn)
 	if err != nil {
 		return nil, err
 	}
-
+	//マイグレーション
 	if err := db.Schema.Create(context.Background()); err != nil {
 		db.Close()
 		return nil, err
