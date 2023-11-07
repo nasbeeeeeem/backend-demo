@@ -12,8 +12,7 @@ type Client struct {
 	Client *ent.Client
 }
 
-func NewClient() (*Client, error) {
-	dsn := ""
+func NewClient(dsn string) (*Client, error) {
 	db, err := ent.Open(dialect.Postgres, dsn)
 	if err != nil {
 		return nil, err

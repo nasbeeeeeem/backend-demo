@@ -19,9 +19,9 @@ func Ping(c *gin.Context) {
 }
 
 // サーバーの起動処理
-func Server() {
+func Server(dsn string) {
 	// 依存性の注入
-	dbClient, err := database.NewClient()
+	dbClient, err := database.NewClient(dsn)
 	if err != nil {
 		panic(err)
 	}
