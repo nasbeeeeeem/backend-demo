@@ -60,7 +60,7 @@ func (h *handler) HandleMeInfo(c *gin.Context) {
 
 	requestBody := new(request)
 
-	token := c.Request.Header.Get("Access-Token")
+	// token := c.Request.Header.Get("Access-Token")
 	jwt := c.Request.Header.Get("X-Apigateway-Api-Userinfo")
 	dec, err := base64.RawURLEncoding.DecodeString(jwt)
 	if err != nil {
@@ -77,7 +77,7 @@ func (h *handler) HandleMeInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"token": token,
+		// "token": token,
 		"name":  user.Name,
 		"email": user.Email,
 	})
