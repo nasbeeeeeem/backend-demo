@@ -46,6 +46,8 @@ paths:
             properties:
               name: { type: string, example: "ユーザー名" }
               email: { type: string, example: "Emailアドレス" }
+        # 500:
+        #   description: "失敗"
     get:
       tags:
         - users
@@ -57,10 +59,12 @@ paths:
       x-google-backend:
         address: "https://backend-demo-747dpngw3q-an.a.run.app/users/me"
       responses:
-        "200":
+        200:
           description: "成功"
           schema:
             type: object
             properties:
               name: { type: string, example: "ユーザー名" }
               email: { type: string, example: "Emailアドレス" }
+        # 500:
+        #   description: "失敗"
