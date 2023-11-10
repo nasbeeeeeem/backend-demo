@@ -13,8 +13,7 @@ type Client struct {
 }
 
 func NewClient(dsn string) (*Client, error) {
-	d := "postgresql://nasbeeeeeem:j1qzFMinVZY2@ep-yellow-snow-32012490.ap-southeast-1.aws.neon.tech/demo?sslmode=require"
-	db, err := ent.Open(dialect.Postgres, d)
+	db, err := ent.Open(dialect.Postgres, dsn)
 	if err != nil {
 		return nil, err
 	}
