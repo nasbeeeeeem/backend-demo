@@ -49,7 +49,7 @@ func Server(dsn string) {
 		// ユーザーの作成
 		// users.POST("/", userHandler.HandleCreate)
 		// 全ユーザの取得
-		// users.GET("/", userHandler.HandleUsers)
+		users.GET("/", userHandler.HandleUsers)
 		// 自分の取得
 		users.GET("/me", userHandler.HandleMeInfo)
 	}

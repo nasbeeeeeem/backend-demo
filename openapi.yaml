@@ -29,12 +29,54 @@ securityDefinitions:
     x-google-jwks_uri: "https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com"
     x-google-audiences: "api-gateway-demo-404010"
 paths:
+  # ユーザー一覧取得のエンドポイント
+  /users:
+    # プリフライトリクエストで使用
+    options:
+      tags:
+        - users
+      summary: "ユーザー一覧を取得"
+      operationId: corsUsers
+      x-google-backend:
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/users"
+      responses:
+        200:
+          description: "成功"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                name: { type: string, example: "ユーザー名" }
+                email: { type: string, example: "メールアドレス" }
+        500:
+          description: "失敗"
+    get:
+      tags:
+        - users
+      summary: "ユーザー一覧を取得"
+      operationId: users
+      x-google-backend:
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/users"
+      responses:
+        200:
+          description: "成功"
+          schema:
+           type: array
+           items:
+            type: object
+            properties:
+              name: {type: string, example: "ユーザー名"}
+              email: {type: string, example: "メールアドレス"}
+        500:
+          description: "失敗"
+  # 自身のユーザー情報を取得するエンドポイント
   /users/me:
     # プリフライトリクエストで使用
     options:
       tags:
         - users
-      summary: ""
+      summary: "自分自身の情報を取得"
       operationId: corsMe
       x-google-backend:
         address: "https://backend-demo-747dpngw3q-an.a.run.app/users/me"
@@ -45,9 +87,9 @@ paths:
             type: object
             properties:
               name: { type: string, example: "ユーザー名" }
-              email: { type: string, example: "Emailアドレス" }
-        # 500:
-        #   description: "失敗"
+              email: { type: string, example: "メールアドレス" }
+        500:
+          description: "失敗"
     get:
       tags:
         - users
@@ -65,6 +107,6 @@ paths:
             type: object
             properties:
               name: { type: string, example: "ユーザー名" }
-              email: { type: string, example: "Emailアドレス" }
-        # 500:
-        #   description: "失敗"
+              email: { type: string, example: "メールアドレス" }
+        500:
+          description: "失敗"

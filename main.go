@@ -34,6 +34,5 @@ func main() {
 		log.Fatalf("failed to access secret version: %v", err)
 	}
 	dsn := *(*string)(unsafe.Pointer(&result.Payload.Data))
-	// dsn := ""
 	server.Server(dsn)
 }
