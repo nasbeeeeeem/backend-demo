@@ -9,19 +9,32 @@ import (
 )
 
 type userRepoImpl struct {
-	Client *database.Client
+	DBClient *database.Client
 }
 
 func NewUserRepoImpl(client *database.Client) repository.UserRepository {
 	return &userRepoImpl{
-		Client: client,
+		DBClient: client,
 	}
 }
 
 // ユーザーの登録
 func (u *userRepoImpl) CreateUser(c context.Context, name string, email string) (*ent.User, error) {
-	newUser, err := u.Client.Client.User.Create().SetName(name).SetEmail(email).Save(context.Background())
+	tx, err := u.DBClient.Client.Tx(c)
 	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	newUser, err := tx.User.Create().SetName(name).SetEmail(email).Save(c)
+	if err != nil {
+		if rerr := tx.Rollback(); rerr != nil {
+			err = rerr
+		}
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 
@@ -30,7 +43,7 @@ func (u *userRepoImpl) CreateUser(c context.Context, name string, email string) 
 
 // 全ユーザーの取得
 func (u *userRepoImpl) GetUsers(c context.Context) ([]*ent.User, error) {
-	users, err := u.Client.Client.User.Query().Where().All(context.Background())
+	users, err := u.DBClient.Client.User.Query().Where().All(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +53,7 @@ func (u *userRepoImpl) GetUsers(c context.Context) ([]*ent.User, error) {
 
 // Emailと一致するユーザーを取得
 func (u *userRepoImpl) GetUserByEmail(c context.Context, email string) (*ent.User, error) {
-	user, err := u.Client.Client.User.Query().Where(user.Email(email)).Only(context.Background())
+	user, err := u.DBClient.Client.User.Query().Where(user.Email(email)).Only(context.Background())
 	if err != nil {
 		return nil, err
 	}
