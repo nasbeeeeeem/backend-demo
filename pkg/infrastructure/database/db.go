@@ -17,7 +17,7 @@ type Client struct {
 func NewClient(dsn string) (*Client, error) {
 	dbPool, _ := cloudsql.ConnectWithConnector()
 	drv := entsql.OpenDB(dialect.Postgres, dbPool)
-	defer drv.Close()
+	// defer drv.Close()
 
 	// クライアントの初期化
 	opt := []ent.Option{ent.Driver(drv)}
@@ -25,7 +25,7 @@ func NewClient(dsn string) (*Client, error) {
 
 	//マイグレーション
 	if err := db.Schema.Create(context.Background()); err != nil {
-		db.Close()
+		// db.Close()
 		return nil, err
 	}
 
