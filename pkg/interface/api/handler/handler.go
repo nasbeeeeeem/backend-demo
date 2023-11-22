@@ -78,9 +78,12 @@ func (h *handler) HandleMeInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"token": token,
-		"name":  user.Name,
-		"email": user.Email,
+		"token":       token,
+		"name":        user.Name,
+		"email":       user.Email,
+		"accountCode": user.AccountCode,
+		"bankCode":    user.BankCode,
+		"branchCode":  user.BranchCode,
 	})
 }
 
