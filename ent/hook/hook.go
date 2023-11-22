@@ -8,6 +8,42 @@ import (
 	"fmt"
 )
 
+// The BankFunc type is an adapter to allow the use of ordinary
+// function as Bank mutator.
+type BankFunc func(context.Context, *ent.BankMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f BankFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.BankMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BankMutation", m)
+}
+
+// The EventFunc type is an adapter to allow the use of ordinary
+// function as Event mutator.
+type EventFunc func(context.Context, *ent.EventMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EventFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.EventMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EventMutation", m)
+}
+
+// The PaymentFunc type is an adapter to allow the use of ordinary
+// function as Payment mutator.
+type PaymentFunc func(context.Context, *ent.PaymentMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PaymentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PaymentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PaymentMutation", m)
+}
+
 // The UserFunc type is an adapter to allow the use of ordinary
 // function as User mutator.
 type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)

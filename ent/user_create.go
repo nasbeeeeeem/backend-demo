@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"backend-demo/ent/bank"
 	"backend-demo/ent/user"
 	"context"
 	"errors"
@@ -86,6 +87,67 @@ func (uc *UserCreate) SetNillableDeletedAt(t *time.Time) *UserCreate {
 		uc.SetDeletedAt(*t)
 	}
 	return uc
+}
+
+// SetAccountCode sets the "account_code" field.
+func (uc *UserCreate) SetAccountCode(s string) *UserCreate {
+	uc.mutation.SetAccountCode(s)
+	return uc
+}
+
+// SetNillableAccountCode sets the "account_code" field if the given value is not nil.
+func (uc *UserCreate) SetNillableAccountCode(s *string) *UserCreate {
+	if s != nil {
+		uc.SetAccountCode(*s)
+	}
+	return uc
+}
+
+// SetBankCode sets the "bank_code" field.
+func (uc *UserCreate) SetBankCode(s string) *UserCreate {
+	uc.mutation.SetBankCode(s)
+	return uc
+}
+
+// SetNillableBankCode sets the "bank_code" field if the given value is not nil.
+func (uc *UserCreate) SetNillableBankCode(s *string) *UserCreate {
+	if s != nil {
+		uc.SetBankCode(*s)
+	}
+	return uc
+}
+
+// SetBranchCode sets the "branch_code" field.
+func (uc *UserCreate) SetBranchCode(s string) *UserCreate {
+	uc.mutation.SetBranchCode(s)
+	return uc
+}
+
+// SetNillableBranchCode sets the "branch_code" field if the given value is not nil.
+func (uc *UserCreate) SetNillableBranchCode(s *string) *UserCreate {
+	if s != nil {
+		uc.SetBranchCode(*s)
+	}
+	return uc
+}
+
+// SetBanksID sets the "banks" edge to the Bank entity by ID.
+func (uc *UserCreate) SetBanksID(id int) *UserCreate {
+	uc.mutation.SetBanksID(id)
+	return uc
+}
+
+// SetNillableBanksID sets the "banks" edge to the Bank entity by ID if the given value is not nil.
+func (uc *UserCreate) SetNillableBanksID(id *int) *UserCreate {
+	if id != nil {
+		uc = uc.SetBanksID(*id)
+	}
+	return uc
+}
+
+// SetBanks sets the "banks" edge to the Bank entity.
+func (uc *UserCreate) SetBanks(b *Bank) *UserCreate {
+	return uc.SetBanksID(b.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -206,6 +268,35 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.DeletedAt(); ok {
 		_spec.SetField(user.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = &value
+	}
+	if value, ok := uc.mutation.AccountCode(); ok {
+		_spec.SetField(user.FieldAccountCode, field.TypeString, value)
+		_node.AccountCode = &value
+	}
+	if value, ok := uc.mutation.BankCode(); ok {
+		_spec.SetField(user.FieldBankCode, field.TypeString, value)
+		_node.BankCode = &value
+	}
+	if value, ok := uc.mutation.BranchCode(); ok {
+		_spec.SetField(user.FieldBranchCode, field.TypeString, value)
+		_node.BranchCode = &value
+	}
+	if nodes := uc.mutation.BanksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.BanksTable,
+			Columns: []string{user.BanksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.bank_users = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

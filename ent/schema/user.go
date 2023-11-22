@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -21,10 +22,16 @@ func (User) Fields() []ent.Field {
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 		field.Time("deleted_at").Nillable().Optional(),
+		field.String("account_code").Nillable().Optional(),
+		field.String("bank_code").Nillable().Optional(),
+		field.String("branch_code").Nillable().Optional(),
 	}
 }
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("banks", Bank.Type).
+			Ref("users").Unique(),
+	}
 }

@@ -58,23 +58,23 @@ func (u *userRepoImpl) CreateUser(c context.Context, name string, email string) 
 
 	// return user, nil
 
-	tx, err := u.DBClient.Client.Tx(c)
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
+	// tx, err := u.DBClient.Client.Tx(c)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// defer tx.Rollback()
 
-	newUser, err := tx.User.Create().SetName(name).SetEmail(email).Save(c)
+	newUser, err := u.DBClient.Client.User.Create().SetName(name).SetEmail(email).Save(context.Background())
 	if err != nil {
-		if rerr := tx.Rollback(); rerr != nil {
-			err = rerr
-		}
+		// if rerr := tx.Rollback(); rerr != nil {
+		// 	err = rerr
+		// }
 		return nil, err
 	}
 
-	if err := tx.Commit(); err != nil {
-		return nil, err
-	}
+	// if err := tx.Commit(); err != nil {
+	// 	return nil, err
+	// }
 
 	return newUser, nil
 }

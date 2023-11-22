@@ -8,6 +8,38 @@ import (
 )
 
 var (
+	// BanksColumns holds the columns for the "banks" table.
+	BanksColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "code", Type: field.TypeString, Unique: true},
+		{Name: "name", Type: field.TypeString},
+	}
+	// BanksTable holds the schema information for the "banks" table.
+	BanksTable = &schema.Table{
+		Name:       "banks",
+		Columns:    BanksColumns,
+		PrimaryKey: []*schema.Column{BanksColumns[0]},
+	}
+	// EventsColumns holds the columns for the "events" table.
+	EventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+	}
+	// EventsTable holds the schema information for the "events" table.
+	EventsTable = &schema.Table{
+		Name:       "events",
+		Columns:    EventsColumns,
+		PrimaryKey: []*schema.Column{EventsColumns[0]},
+	}
+	// PaymentsColumns holds the columns for the "payments" table.
+	PaymentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+	}
+	// PaymentsTable holds the schema information for the "payments" table.
+	PaymentsTable = &schema.Table{
+		Name:       "payments",
+		Columns:    PaymentsColumns,
+		PrimaryKey: []*schema.Column{PaymentsColumns[0]},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -17,18 +49,34 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "account_code", Type: field.TypeString, Nullable: true},
+		{Name: "bank_code", Type: field.TypeString, Nullable: true},
+		{Name: "branch_code", Type: field.TypeString, Nullable: true},
+		{Name: "bank_users", Type: field.TypeInt, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "users_banks_users",
+				Columns:    []*schema.Column{UsersColumns[10]},
+				RefColumns: []*schema.Column{BanksColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		BanksTable,
+		EventsTable,
+		PaymentsTable,
 		UsersTable,
 	}
 )
 
 func init() {
+	UsersTable.ForeignKeys[0].RefTable = BanksTable
 }

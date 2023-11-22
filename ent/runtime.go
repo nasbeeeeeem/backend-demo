@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"backend-demo/ent/bank"
 	"backend-demo/ent/schema"
 	"backend-demo/ent/user"
 	"time"
@@ -12,6 +13,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	bankFields := schema.Bank{}.Fields()
+	_ = bankFields
+	// bankDescCode is the schema descriptor for code field.
+	bankDescCode := bankFields[0].Descriptor()
+	// bank.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	bank.CodeValidator = bankDescCode.Validators[0].(func(string) error)
+	// bankDescName is the schema descriptor for name field.
+	bankDescName := bankFields[1].Descriptor()
+	// bank.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	bank.NameValidator = bankDescName.Validators[0].(func(string) error)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescName is the schema descriptor for name field.

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -82,6 +83,21 @@ func UpdatedAt(v time.Time) predicate.User {
 // DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
 func DeletedAt(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldDeletedAt, v))
+}
+
+// AccountCode applies equality check predicate on the "account_code" field. It's identical to AccountCodeEQ.
+func AccountCode(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldAccountCode, v))
+}
+
+// BankCode applies equality check predicate on the "bank_code" field. It's identical to BankCodeEQ.
+func BankCode(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldBankCode, v))
+}
+
+// BranchCode applies equality check predicate on the "branch_code" field. It's identical to BranchCodeEQ.
+func BranchCode(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldBranchCode, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.
@@ -417,6 +433,254 @@ func DeletedAtIsNil() predicate.User {
 // DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
 func DeletedAtNotNil() predicate.User {
 	return predicate.User(sql.FieldNotNull(FieldDeletedAt))
+}
+
+// AccountCodeEQ applies the EQ predicate on the "account_code" field.
+func AccountCodeEQ(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldAccountCode, v))
+}
+
+// AccountCodeNEQ applies the NEQ predicate on the "account_code" field.
+func AccountCodeNEQ(v string) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldAccountCode, v))
+}
+
+// AccountCodeIn applies the In predicate on the "account_code" field.
+func AccountCodeIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldIn(FieldAccountCode, vs...))
+}
+
+// AccountCodeNotIn applies the NotIn predicate on the "account_code" field.
+func AccountCodeNotIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldAccountCode, vs...))
+}
+
+// AccountCodeGT applies the GT predicate on the "account_code" field.
+func AccountCodeGT(v string) predicate.User {
+	return predicate.User(sql.FieldGT(FieldAccountCode, v))
+}
+
+// AccountCodeGTE applies the GTE predicate on the "account_code" field.
+func AccountCodeGTE(v string) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldAccountCode, v))
+}
+
+// AccountCodeLT applies the LT predicate on the "account_code" field.
+func AccountCodeLT(v string) predicate.User {
+	return predicate.User(sql.FieldLT(FieldAccountCode, v))
+}
+
+// AccountCodeLTE applies the LTE predicate on the "account_code" field.
+func AccountCodeLTE(v string) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldAccountCode, v))
+}
+
+// AccountCodeContains applies the Contains predicate on the "account_code" field.
+func AccountCodeContains(v string) predicate.User {
+	return predicate.User(sql.FieldContains(FieldAccountCode, v))
+}
+
+// AccountCodeHasPrefix applies the HasPrefix predicate on the "account_code" field.
+func AccountCodeHasPrefix(v string) predicate.User {
+	return predicate.User(sql.FieldHasPrefix(FieldAccountCode, v))
+}
+
+// AccountCodeHasSuffix applies the HasSuffix predicate on the "account_code" field.
+func AccountCodeHasSuffix(v string) predicate.User {
+	return predicate.User(sql.FieldHasSuffix(FieldAccountCode, v))
+}
+
+// AccountCodeIsNil applies the IsNil predicate on the "account_code" field.
+func AccountCodeIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldAccountCode))
+}
+
+// AccountCodeNotNil applies the NotNil predicate on the "account_code" field.
+func AccountCodeNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldAccountCode))
+}
+
+// AccountCodeEqualFold applies the EqualFold predicate on the "account_code" field.
+func AccountCodeEqualFold(v string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldAccountCode, v))
+}
+
+// AccountCodeContainsFold applies the ContainsFold predicate on the "account_code" field.
+func AccountCodeContainsFold(v string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldAccountCode, v))
+}
+
+// BankCodeEQ applies the EQ predicate on the "bank_code" field.
+func BankCodeEQ(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldBankCode, v))
+}
+
+// BankCodeNEQ applies the NEQ predicate on the "bank_code" field.
+func BankCodeNEQ(v string) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldBankCode, v))
+}
+
+// BankCodeIn applies the In predicate on the "bank_code" field.
+func BankCodeIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldIn(FieldBankCode, vs...))
+}
+
+// BankCodeNotIn applies the NotIn predicate on the "bank_code" field.
+func BankCodeNotIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldBankCode, vs...))
+}
+
+// BankCodeGT applies the GT predicate on the "bank_code" field.
+func BankCodeGT(v string) predicate.User {
+	return predicate.User(sql.FieldGT(FieldBankCode, v))
+}
+
+// BankCodeGTE applies the GTE predicate on the "bank_code" field.
+func BankCodeGTE(v string) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldBankCode, v))
+}
+
+// BankCodeLT applies the LT predicate on the "bank_code" field.
+func BankCodeLT(v string) predicate.User {
+	return predicate.User(sql.FieldLT(FieldBankCode, v))
+}
+
+// BankCodeLTE applies the LTE predicate on the "bank_code" field.
+func BankCodeLTE(v string) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldBankCode, v))
+}
+
+// BankCodeContains applies the Contains predicate on the "bank_code" field.
+func BankCodeContains(v string) predicate.User {
+	return predicate.User(sql.FieldContains(FieldBankCode, v))
+}
+
+// BankCodeHasPrefix applies the HasPrefix predicate on the "bank_code" field.
+func BankCodeHasPrefix(v string) predicate.User {
+	return predicate.User(sql.FieldHasPrefix(FieldBankCode, v))
+}
+
+// BankCodeHasSuffix applies the HasSuffix predicate on the "bank_code" field.
+func BankCodeHasSuffix(v string) predicate.User {
+	return predicate.User(sql.FieldHasSuffix(FieldBankCode, v))
+}
+
+// BankCodeIsNil applies the IsNil predicate on the "bank_code" field.
+func BankCodeIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldBankCode))
+}
+
+// BankCodeNotNil applies the NotNil predicate on the "bank_code" field.
+func BankCodeNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldBankCode))
+}
+
+// BankCodeEqualFold applies the EqualFold predicate on the "bank_code" field.
+func BankCodeEqualFold(v string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldBankCode, v))
+}
+
+// BankCodeContainsFold applies the ContainsFold predicate on the "bank_code" field.
+func BankCodeContainsFold(v string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldBankCode, v))
+}
+
+// BranchCodeEQ applies the EQ predicate on the "branch_code" field.
+func BranchCodeEQ(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldBranchCode, v))
+}
+
+// BranchCodeNEQ applies the NEQ predicate on the "branch_code" field.
+func BranchCodeNEQ(v string) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldBranchCode, v))
+}
+
+// BranchCodeIn applies the In predicate on the "branch_code" field.
+func BranchCodeIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldIn(FieldBranchCode, vs...))
+}
+
+// BranchCodeNotIn applies the NotIn predicate on the "branch_code" field.
+func BranchCodeNotIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldBranchCode, vs...))
+}
+
+// BranchCodeGT applies the GT predicate on the "branch_code" field.
+func BranchCodeGT(v string) predicate.User {
+	return predicate.User(sql.FieldGT(FieldBranchCode, v))
+}
+
+// BranchCodeGTE applies the GTE predicate on the "branch_code" field.
+func BranchCodeGTE(v string) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldBranchCode, v))
+}
+
+// BranchCodeLT applies the LT predicate on the "branch_code" field.
+func BranchCodeLT(v string) predicate.User {
+	return predicate.User(sql.FieldLT(FieldBranchCode, v))
+}
+
+// BranchCodeLTE applies the LTE predicate on the "branch_code" field.
+func BranchCodeLTE(v string) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldBranchCode, v))
+}
+
+// BranchCodeContains applies the Contains predicate on the "branch_code" field.
+func BranchCodeContains(v string) predicate.User {
+	return predicate.User(sql.FieldContains(FieldBranchCode, v))
+}
+
+// BranchCodeHasPrefix applies the HasPrefix predicate on the "branch_code" field.
+func BranchCodeHasPrefix(v string) predicate.User {
+	return predicate.User(sql.FieldHasPrefix(FieldBranchCode, v))
+}
+
+// BranchCodeHasSuffix applies the HasSuffix predicate on the "branch_code" field.
+func BranchCodeHasSuffix(v string) predicate.User {
+	return predicate.User(sql.FieldHasSuffix(FieldBranchCode, v))
+}
+
+// BranchCodeIsNil applies the IsNil predicate on the "branch_code" field.
+func BranchCodeIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldBranchCode))
+}
+
+// BranchCodeNotNil applies the NotNil predicate on the "branch_code" field.
+func BranchCodeNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldBranchCode))
+}
+
+// BranchCodeEqualFold applies the EqualFold predicate on the "branch_code" field.
+func BranchCodeEqualFold(v string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldBranchCode, v))
+}
+
+// BranchCodeContainsFold applies the ContainsFold predicate on the "branch_code" field.
+func BranchCodeContainsFold(v string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldBranchCode, v))
+}
+
+// HasBanks applies the HasEdge predicate on the "banks" edge.
+func HasBanks() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, BanksTable, BanksColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasBanksWith applies the HasEdge predicate on the "banks" edge with a given conditions (other predicates).
+func HasBanksWith(preds ...predicate.Bank) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newBanksStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

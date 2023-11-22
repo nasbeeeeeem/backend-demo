@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"backend-demo/ent/bank"
 	"backend-demo/ent/user"
 	"fmt"
 	"strings"
@@ -28,8 +29,40 @@ type User struct {
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
+	// AccountCode holds the value of the "account_code" field.
+	AccountCode *string `json:"account_code,omitempty"`
+	// BankCode holds the value of the "bank_code" field.
+	BankCode *string `json:"bank_code,omitempty"`
+	// BranchCode holds the value of the "branch_code" field.
+	BranchCode *string `json:"branch_code,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges        UserEdges `json:"edges"`
+	bank_users   *int
 	selectValues sql.SelectValues
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// Banks holds the value of the banks edge.
+	Banks *Bank `json:"banks,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// BanksOrErr returns the Banks value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) BanksOrErr() (*Bank, error) {
+	if e.loadedTypes[0] {
+		if e.Banks == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: bank.Label}
+		}
+		return e.Banks, nil
+	}
+	return nil, &NotLoadedError{edge: "banks"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -39,10 +72,12 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldName, user.FieldEmail, user.FieldPhotoURL:
+		case user.FieldName, user.FieldEmail, user.FieldPhotoURL, user.FieldAccountCode, user.FieldBankCode, user.FieldBranchCode:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
+		case user.ForeignKeys[0]: // bank_users
+			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -101,6 +136,34 @@ func (u *User) assignValues(columns []string, values []any) error {
 				u.DeletedAt = new(time.Time)
 				*u.DeletedAt = value.Time
 			}
+		case user.FieldAccountCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field account_code", values[i])
+			} else if value.Valid {
+				u.AccountCode = new(string)
+				*u.AccountCode = value.String
+			}
+		case user.FieldBankCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field bank_code", values[i])
+			} else if value.Valid {
+				u.BankCode = new(string)
+				*u.BankCode = value.String
+			}
+		case user.FieldBranchCode:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field branch_code", values[i])
+			} else if value.Valid {
+				u.BranchCode = new(string)
+				*u.BranchCode = value.String
+			}
+		case user.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field bank_users", value)
+			} else if value.Valid {
+				u.bank_users = new(int)
+				*u.bank_users = int(value.Int64)
+			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
 		}
@@ -112,6 +175,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
+}
+
+// QueryBanks queries the "banks" edge of the User entity.
+func (u *User) QueryBanks() *BankQuery {
+	return NewUserClient(u.config).QueryBanks(u)
 }
 
 // Update returns a builder for updating this User.
@@ -155,6 +223,21 @@ func (u *User) String() string {
 	if v := u.DeletedAt; v != nil {
 		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	if v := u.AccountCode; v != nil {
+		builder.WriteString("account_code=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := u.BankCode; v != nil {
+		builder.WriteString("bank_code=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := u.BranchCode; v != nil {
+		builder.WriteString("branch_code=")
+		builder.WriteString(*v)
 	}
 	builder.WriteByte(')')
 	return builder.String()

@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"backend-demo/ent/bank"
 	"backend-demo/ent/predicate"
 	"backend-demo/ent/user"
 	"context"
@@ -86,9 +87,94 @@ func (uu *UserUpdate) ClearDeletedAt() *UserUpdate {
 	return uu
 }
 
+// SetAccountCode sets the "account_code" field.
+func (uu *UserUpdate) SetAccountCode(s string) *UserUpdate {
+	uu.mutation.SetAccountCode(s)
+	return uu
+}
+
+// SetNillableAccountCode sets the "account_code" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableAccountCode(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetAccountCode(*s)
+	}
+	return uu
+}
+
+// ClearAccountCode clears the value of the "account_code" field.
+func (uu *UserUpdate) ClearAccountCode() *UserUpdate {
+	uu.mutation.ClearAccountCode()
+	return uu
+}
+
+// SetBankCode sets the "bank_code" field.
+func (uu *UserUpdate) SetBankCode(s string) *UserUpdate {
+	uu.mutation.SetBankCode(s)
+	return uu
+}
+
+// SetNillableBankCode sets the "bank_code" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableBankCode(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetBankCode(*s)
+	}
+	return uu
+}
+
+// ClearBankCode clears the value of the "bank_code" field.
+func (uu *UserUpdate) ClearBankCode() *UserUpdate {
+	uu.mutation.ClearBankCode()
+	return uu
+}
+
+// SetBranchCode sets the "branch_code" field.
+func (uu *UserUpdate) SetBranchCode(s string) *UserUpdate {
+	uu.mutation.SetBranchCode(s)
+	return uu
+}
+
+// SetNillableBranchCode sets the "branch_code" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableBranchCode(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetBranchCode(*s)
+	}
+	return uu
+}
+
+// ClearBranchCode clears the value of the "branch_code" field.
+func (uu *UserUpdate) ClearBranchCode() *UserUpdate {
+	uu.mutation.ClearBranchCode()
+	return uu
+}
+
+// SetBanksID sets the "banks" edge to the Bank entity by ID.
+func (uu *UserUpdate) SetBanksID(id int) *UserUpdate {
+	uu.mutation.SetBanksID(id)
+	return uu
+}
+
+// SetNillableBanksID sets the "banks" edge to the Bank entity by ID if the given value is not nil.
+func (uu *UserUpdate) SetNillableBanksID(id *int) *UserUpdate {
+	if id != nil {
+		uu = uu.SetBanksID(*id)
+	}
+	return uu
+}
+
+// SetBanks sets the "banks" edge to the Bank entity.
+func (uu *UserUpdate) SetBanks(b *Bank) *UserUpdate {
+	return uu.SetBanksID(b.ID)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
+}
+
+// ClearBanks clears the "banks" edge to the Bank entity.
+func (uu *UserUpdate) ClearBanks() *UserUpdate {
+	uu.mutation.ClearBanks()
+	return uu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -175,6 +261,53 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if uu.mutation.DeletedAtCleared() {
 		_spec.ClearField(user.FieldDeletedAt, field.TypeTime)
 	}
+	if value, ok := uu.mutation.AccountCode(); ok {
+		_spec.SetField(user.FieldAccountCode, field.TypeString, value)
+	}
+	if uu.mutation.AccountCodeCleared() {
+		_spec.ClearField(user.FieldAccountCode, field.TypeString)
+	}
+	if value, ok := uu.mutation.BankCode(); ok {
+		_spec.SetField(user.FieldBankCode, field.TypeString, value)
+	}
+	if uu.mutation.BankCodeCleared() {
+		_spec.ClearField(user.FieldBankCode, field.TypeString)
+	}
+	if value, ok := uu.mutation.BranchCode(); ok {
+		_spec.SetField(user.FieldBranchCode, field.TypeString, value)
+	}
+	if uu.mutation.BranchCodeCleared() {
+		_spec.ClearField(user.FieldBranchCode, field.TypeString)
+	}
+	if uu.mutation.BanksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.BanksTable,
+			Columns: []string{user.BanksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.BanksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.BanksTable,
+			Columns: []string{user.BanksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -253,9 +386,94 @@ func (uuo *UserUpdateOne) ClearDeletedAt() *UserUpdateOne {
 	return uuo
 }
 
+// SetAccountCode sets the "account_code" field.
+func (uuo *UserUpdateOne) SetAccountCode(s string) *UserUpdateOne {
+	uuo.mutation.SetAccountCode(s)
+	return uuo
+}
+
+// SetNillableAccountCode sets the "account_code" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableAccountCode(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetAccountCode(*s)
+	}
+	return uuo
+}
+
+// ClearAccountCode clears the value of the "account_code" field.
+func (uuo *UserUpdateOne) ClearAccountCode() *UserUpdateOne {
+	uuo.mutation.ClearAccountCode()
+	return uuo
+}
+
+// SetBankCode sets the "bank_code" field.
+func (uuo *UserUpdateOne) SetBankCode(s string) *UserUpdateOne {
+	uuo.mutation.SetBankCode(s)
+	return uuo
+}
+
+// SetNillableBankCode sets the "bank_code" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableBankCode(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetBankCode(*s)
+	}
+	return uuo
+}
+
+// ClearBankCode clears the value of the "bank_code" field.
+func (uuo *UserUpdateOne) ClearBankCode() *UserUpdateOne {
+	uuo.mutation.ClearBankCode()
+	return uuo
+}
+
+// SetBranchCode sets the "branch_code" field.
+func (uuo *UserUpdateOne) SetBranchCode(s string) *UserUpdateOne {
+	uuo.mutation.SetBranchCode(s)
+	return uuo
+}
+
+// SetNillableBranchCode sets the "branch_code" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableBranchCode(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetBranchCode(*s)
+	}
+	return uuo
+}
+
+// ClearBranchCode clears the value of the "branch_code" field.
+func (uuo *UserUpdateOne) ClearBranchCode() *UserUpdateOne {
+	uuo.mutation.ClearBranchCode()
+	return uuo
+}
+
+// SetBanksID sets the "banks" edge to the Bank entity by ID.
+func (uuo *UserUpdateOne) SetBanksID(id int) *UserUpdateOne {
+	uuo.mutation.SetBanksID(id)
+	return uuo
+}
+
+// SetNillableBanksID sets the "banks" edge to the Bank entity by ID if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableBanksID(id *int) *UserUpdateOne {
+	if id != nil {
+		uuo = uuo.SetBanksID(*id)
+	}
+	return uuo
+}
+
+// SetBanks sets the "banks" edge to the Bank entity.
+func (uuo *UserUpdateOne) SetBanks(b *Bank) *UserUpdateOne {
+	return uuo.SetBanksID(b.ID)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
+}
+
+// ClearBanks clears the "banks" edge to the Bank entity.
+func (uuo *UserUpdateOne) ClearBanks() *UserUpdateOne {
+	uuo.mutation.ClearBanks()
+	return uuo
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -371,6 +589,53 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if uuo.mutation.DeletedAtCleared() {
 		_spec.ClearField(user.FieldDeletedAt, field.TypeTime)
+	}
+	if value, ok := uuo.mutation.AccountCode(); ok {
+		_spec.SetField(user.FieldAccountCode, field.TypeString, value)
+	}
+	if uuo.mutation.AccountCodeCleared() {
+		_spec.ClearField(user.FieldAccountCode, field.TypeString)
+	}
+	if value, ok := uuo.mutation.BankCode(); ok {
+		_spec.SetField(user.FieldBankCode, field.TypeString, value)
+	}
+	if uuo.mutation.BankCodeCleared() {
+		_spec.ClearField(user.FieldBankCode, field.TypeString)
+	}
+	if value, ok := uuo.mutation.BranchCode(); ok {
+		_spec.SetField(user.FieldBranchCode, field.TypeString, value)
+	}
+	if uuo.mutation.BranchCodeCleared() {
+		_spec.ClearField(user.FieldBranchCode, field.TypeString)
+	}
+	if uuo.mutation.BanksCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.BanksTable,
+			Columns: []string{user.BanksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.BanksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.BanksTable,
+			Columns: []string{user.BanksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &User{config: uuo.config}
 	_spec.Assign = _node.assignValues

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -25,8 +26,23 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
+	// FieldAccountCode holds the string denoting the account_code field in the database.
+	FieldAccountCode = "account_code"
+	// FieldBankCode holds the string denoting the bank_code field in the database.
+	FieldBankCode = "bank_code"
+	// FieldBranchCode holds the string denoting the branch_code field in the database.
+	FieldBranchCode = "branch_code"
+	// EdgeBanks holds the string denoting the banks edge name in mutations.
+	EdgeBanks = "banks"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// BanksTable is the table that holds the banks relation/edge.
+	BanksTable = "users"
+	// BanksInverseTable is the table name for the Bank entity.
+	// It exists in this package in order to avoid circular dependency with the "bank" package.
+	BanksInverseTable = "banks"
+	// BanksColumn is the table column denoting the banks relation/edge.
+	BanksColumn = "bank_users"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -38,12 +54,26 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeletedAt,
+	FieldAccountCode,
+	FieldBankCode,
+	FieldBranchCode,
+}
+
+// ForeignKeys holds the SQL foreign-keys that are owned by the "users"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"bank_users",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -99,4 +129,33 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByDeletedAt orders the results by the deleted_at field.
 func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
+}
+
+// ByAccountCode orders the results by the account_code field.
+func ByAccountCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAccountCode, opts...).ToFunc()
+}
+
+// ByBankCode orders the results by the bank_code field.
+func ByBankCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBankCode, opts...).ToFunc()
+}
+
+// ByBranchCode orders the results by the branch_code field.
+func ByBranchCode(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBranchCode, opts...).ToFunc()
+}
+
+// ByBanksField orders the results by banks field.
+func ByBanksField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBanksStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newBanksStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(BanksInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, BanksTable, BanksColumn),
+	)
 }

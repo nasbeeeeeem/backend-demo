@@ -3,6 +3,9 @@
 package ent
 
 import (
+	"backend-demo/ent/bank"
+	"backend-demo/ent/event"
+	"backend-demo/ent/payment"
 	"backend-demo/ent/user"
 	"context"
 	"errors"
@@ -73,7 +76,10 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			user.Table: user.ValidColumn,
+			bank.Table:    bank.ValidColumn,
+			event.Table:   event.ValidColumn,
+			payment.Table: payment.ValidColumn,
+			user.Table:    user.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

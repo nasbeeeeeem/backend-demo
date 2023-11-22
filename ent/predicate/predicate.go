@@ -6,5 +6,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Bank is the predicate function for bank builders.
+type Bank func(*sql.Selector)
+
+// Event is the predicate function for event builders.
+type Event func(*sql.Selector)
+
+// Payment is the predicate function for payment builders.
+type Payment func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
