@@ -18,6 +18,23 @@ func NewUserRepoImpl(client *database.Client) repository.UserRepository {
 	}
 }
 
+// UpdateUser implements repository.UserRepository.
+func (u *userRepoImpl) UpdateUser(c context.Context, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) error {
+	_, err := u.DBClient.Client.User.Update().
+		SetName(name).
+		SetPhotoURL(photoUrl).
+		SetAccountCode(accountCode).
+		SetBankCode(bankCode).
+		SetBranchCode(branchCode).
+		Where(user.Email(email)).
+		Save(context.Background())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // トランザクション制御のヘルパー関数
 // func WithTx(ctx context.Context, client *ent.Client, fn func(tx *ent.Tx) error) error {
 // 	tx, err := client.Tx(ctx)
@@ -64,7 +81,7 @@ func (u *userRepoImpl) CreateUser(c context.Context, name string, email string) 
 	// }
 	// defer tx.Rollback()
 
-	newUser, err := u.DBClient.Client.User.Create().SetName(name).SetEmail(email).Save(context.Background())
+	newUser, err := u.DBClient.Client.User.Create().SetName(name).SetEmail(email).SetBankCode("0005").Save(context.Background())
 	if err != nil {
 		// if rerr := tx.Rollback(); rerr != nil {
 		// 	err = rerr

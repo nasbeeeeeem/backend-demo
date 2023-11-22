@@ -40,7 +40,7 @@ func (bd *BankDelete) ExecX(ctx context.Context) int {
 }
 
 func (bd *BankDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(bank.Table, sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(bank.Table, sqlgraph.NewFieldSpec(bank.FieldID, field.TypeString))
 	if ps := bd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

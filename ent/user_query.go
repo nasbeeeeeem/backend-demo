@@ -23,7 +23,6 @@ type UserQuery struct {
 	inters     []Interceptor
 	predicates []predicate.User
 	withBanks  *BankQuery
-	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -369,18 +368,11 @@ func (uq *UserQuery) prepareQuery(ctx context.Context) error {
 func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, error) {
 	var (
 		nodes       = []*User{}
-		withFKs     = uq.withFKs
 		_spec       = uq.querySpec()
 		loadedTypes = [1]bool{
 			uq.withBanks != nil,
 		}
 	)
-	if uq.withBanks != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, user.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*User).scanValues(nil, columns)
 	}
@@ -409,13 +401,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 }
 
 func (uq *UserQuery) loadBanks(ctx context.Context, query *BankQuery, nodes []*User, init func(*User), assign func(*User, *Bank)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*User)
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*User)
 	for i := range nodes {
-		if nodes[i].bank_users == nil {
+		if nodes[i].BankCode == nil {
 			continue
 		}
-		fk := *nodes[i].bank_users
+		fk := *nodes[i].BankCode
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -432,7 +424,7 @@ func (uq *UserQuery) loadBanks(ctx context.Context, query *BankQuery, nodes []*U
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "bank_users" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "bank_code" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -465,6 +457,9 @@ func (uq *UserQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != user.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if uq.withBanks != nil {
+			_spec.Node.AddColumnOnce(user.FieldBankCode)
 		}
 	}
 	if ps := uq.predicates; len(ps) > 0 {

@@ -12,8 +12,6 @@ const (
 	Label = "bank"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldCode holds the string denoting the code field in the database.
-	FieldCode = "code"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// EdgeUsers holds the string denoting the users edge name in mutations.
@@ -26,13 +24,12 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UsersInverseTable = "users"
 	// UsersColumn is the table column denoting the users relation/edge.
-	UsersColumn = "bank_users"
+	UsersColumn = "bank_code"
 )
 
 // Columns holds all SQL columns for bank fields.
 var Columns = []string{
 	FieldID,
-	FieldCode,
 	FieldName,
 }
 
@@ -47,10 +44,10 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// CodeValidator is a validator for the "code" field. It is called by the builders before save.
-	CodeValidator func(string) error
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
+	// IDValidator is a validator for the "id" field. It is called by the builders before save.
+	IDValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the Bank queries.
@@ -59,11 +56,6 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByCode orders the results by the code field.
-func ByCode(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCode, opts...).ToFunc()
 }
 
 // ByName orders the results by the name field.

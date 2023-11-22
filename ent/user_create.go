@@ -109,14 +109,6 @@ func (uc *UserCreate) SetBankCode(s string) *UserCreate {
 	return uc
 }
 
-// SetNillableBankCode sets the "bank_code" field if the given value is not nil.
-func (uc *UserCreate) SetNillableBankCode(s *string) *UserCreate {
-	if s != nil {
-		uc.SetBankCode(*s)
-	}
-	return uc
-}
-
 // SetBranchCode sets the "branch_code" field.
 func (uc *UserCreate) SetBranchCode(s string) *UserCreate {
 	uc.mutation.SetBranchCode(s)
@@ -132,16 +124,8 @@ func (uc *UserCreate) SetNillableBranchCode(s *string) *UserCreate {
 }
 
 // SetBanksID sets the "banks" edge to the Bank entity by ID.
-func (uc *UserCreate) SetBanksID(id int) *UserCreate {
+func (uc *UserCreate) SetBanksID(id string) *UserCreate {
 	uc.mutation.SetBanksID(id)
-	return uc
-}
-
-// SetNillableBanksID sets the "banks" edge to the Bank entity by ID if the given value is not nil.
-func (uc *UserCreate) SetNillableBanksID(id *int) *UserCreate {
-	if id != nil {
-		uc = uc.SetBanksID(*id)
-	}
 	return uc
 }
 
@@ -219,6 +203,12 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "User.updated_at"`)}
 	}
+	if _, ok := uc.mutation.BankCode(); !ok {
+		return &ValidationError{Name: "bank_code", err: errors.New(`ent: missing required field "User.bank_code"`)}
+	}
+	if _, ok := uc.mutation.BanksID(); !ok {
+		return &ValidationError{Name: "banks", err: errors.New(`ent: missing required edge "User.banks"`)}
+	}
 	return nil
 }
 
@@ -273,10 +263,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldAccountCode, field.TypeString, value)
 		_node.AccountCode = &value
 	}
-	if value, ok := uc.mutation.BankCode(); ok {
-		_spec.SetField(user.FieldBankCode, field.TypeString, value)
-		_node.BankCode = &value
-	}
 	if value, ok := uc.mutation.BranchCode(); ok {
 		_spec.SetField(user.FieldBranchCode, field.TypeString, value)
 		_node.BranchCode = &value
@@ -289,13 +275,13 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.BanksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.bank_users = &nodes[0]
+		_node.BankCode = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

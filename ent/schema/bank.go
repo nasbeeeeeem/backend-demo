@@ -14,7 +14,7 @@ type Bank struct {
 // Fields of the Bank.
 func (Bank) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("code").NotEmpty().Unique(),
+		field.String("id").MinLen(4).MaxLen(4).NotEmpty().Unique(),
 		field.String("name").NotEmpty(),
 	}
 }

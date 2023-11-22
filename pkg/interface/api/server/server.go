@@ -52,6 +52,8 @@ func Server(dsn string) {
 		users.GET("/", userHandler.HandleUsers)
 		// 自分の取得
 		users.GET("/me", userHandler.HandleMeInfo)
+		// プロフィールの更新
+		users.PUT("/me", userHandler.HandleUpdate)
 	}
 
 	// 支払い関係のエンドポイント

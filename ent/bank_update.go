@@ -28,12 +28,6 @@ func (bu *BankUpdate) Where(ps ...predicate.Bank) *BankUpdate {
 	return bu
 }
 
-// SetCode sets the "code" field.
-func (bu *BankUpdate) SetCode(s string) *BankUpdate {
-	bu.mutation.SetCode(s)
-	return bu
-}
-
 // SetName sets the "name" field.
 func (bu *BankUpdate) SetName(s string) *BankUpdate {
 	bu.mutation.SetName(s)
@@ -110,11 +104,6 @@ func (bu *BankUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (bu *BankUpdate) check() error {
-	if v, ok := bu.mutation.Code(); ok {
-		if err := bank.CodeValidator(v); err != nil {
-			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "Bank.code": %w`, err)}
-		}
-	}
 	if v, ok := bu.mutation.Name(); ok {
 		if err := bank.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Bank.name": %w`, err)}
@@ -127,16 +116,13 @@ func (bu *BankUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := bu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(bank.Table, bank.Columns, sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(bank.Table, bank.Columns, sqlgraph.NewFieldSpec(bank.FieldID, field.TypeString))
 	if ps := bu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := bu.mutation.Code(); ok {
-		_spec.SetField(bank.FieldCode, field.TypeString, value)
 	}
 	if value, ok := bu.mutation.Name(); ok {
 		_spec.SetField(bank.FieldName, field.TypeString, value)
@@ -204,12 +190,6 @@ type BankUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *BankMutation
-}
-
-// SetCode sets the "code" field.
-func (buo *BankUpdateOne) SetCode(s string) *BankUpdateOne {
-	buo.mutation.SetCode(s)
-	return buo
 }
 
 // SetName sets the "name" field.
@@ -301,11 +281,6 @@ func (buo *BankUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (buo *BankUpdateOne) check() error {
-	if v, ok := buo.mutation.Code(); ok {
-		if err := bank.CodeValidator(v); err != nil {
-			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "Bank.code": %w`, err)}
-		}
-	}
 	if v, ok := buo.mutation.Name(); ok {
 		if err := bank.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Bank.name": %w`, err)}
@@ -318,7 +293,7 @@ func (buo *BankUpdateOne) sqlSave(ctx context.Context) (_node *Bank, err error) 
 	if err := buo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(bank.Table, bank.Columns, sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(bank.Table, bank.Columns, sqlgraph.NewFieldSpec(bank.FieldID, field.TypeString))
 	id, ok := buo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Bank.id" for update`)}
@@ -342,9 +317,6 @@ func (buo *BankUpdateOne) sqlSave(ctx context.Context) (_node *Bank, err error) 
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := buo.mutation.Code(); ok {
-		_spec.SetField(bank.FieldCode, field.TypeString, value)
 	}
 	if value, ok := buo.mutation.Name(); ok {
 		_spec.SetField(bank.FieldName, field.TypeString, value)

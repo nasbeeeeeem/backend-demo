@@ -565,16 +565,6 @@ func BankCodeHasSuffix(v string) predicate.User {
 	return predicate.User(sql.FieldHasSuffix(FieldBankCode, v))
 }
 
-// BankCodeIsNil applies the IsNil predicate on the "bank_code" field.
-func BankCodeIsNil() predicate.User {
-	return predicate.User(sql.FieldIsNull(FieldBankCode))
-}
-
-// BankCodeNotNil applies the NotNil predicate on the "bank_code" field.
-func BankCodeNotNil() predicate.User {
-	return predicate.User(sql.FieldNotNull(FieldBankCode))
-}
-
 // BankCodeEqualFold applies the EqualFold predicate on the "bank_code" field.
 func BankCodeEqualFold(v string) predicate.User {
 	return predicate.User(sql.FieldEqualFold(FieldBankCode, v))

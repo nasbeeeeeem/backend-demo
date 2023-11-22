@@ -23,7 +23,7 @@ func (User) Fields() []ent.Field {
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 		field.Time("deleted_at").Nillable().Optional(),
 		field.String("account_code").Nillable().Optional(),
-		field.String("bank_code").Nillable().Optional(),
+		field.String("bank_code").Nillable(),
 		field.String("branch_code").Nillable().Optional(),
 	}
 }
@@ -32,6 +32,9 @@ func (User) Fields() []ent.Field {
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("banks", Bank.Type).
-			Ref("users").Unique(),
+			Ref("users").
+			Field("bank_code").
+			Unique().
+			Required(),
 	}
 }

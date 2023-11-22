@@ -10,8 +10,7 @@ import (
 var (
 	// BanksColumns holds the columns for the "banks" table.
 	BanksColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "code", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 4},
 		{Name: "name", Type: field.TypeString},
 	}
 	// BanksTable holds the schema information for the "banks" table.
@@ -50,9 +49,8 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "account_code", Type: field.TypeString, Nullable: true},
-		{Name: "bank_code", Type: field.TypeString, Nullable: true},
 		{Name: "branch_code", Type: field.TypeString, Nullable: true},
-		{Name: "bank_users", Type: field.TypeInt, Nullable: true},
+		{Name: "bank_code", Type: field.TypeString, Size: 4},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -62,9 +60,9 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_banks_users",
-				Columns:    []*schema.Column{UsersColumns[10]},
+				Columns:    []*schema.Column{UsersColumns[9]},
 				RefColumns: []*schema.Column{BanksColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}

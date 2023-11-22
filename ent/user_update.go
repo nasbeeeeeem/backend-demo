@@ -113,20 +113,6 @@ func (uu *UserUpdate) SetBankCode(s string) *UserUpdate {
 	return uu
 }
 
-// SetNillableBankCode sets the "bank_code" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableBankCode(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetBankCode(*s)
-	}
-	return uu
-}
-
-// ClearBankCode clears the value of the "bank_code" field.
-func (uu *UserUpdate) ClearBankCode() *UserUpdate {
-	uu.mutation.ClearBankCode()
-	return uu
-}
-
 // SetBranchCode sets the "branch_code" field.
 func (uu *UserUpdate) SetBranchCode(s string) *UserUpdate {
 	uu.mutation.SetBranchCode(s)
@@ -148,16 +134,8 @@ func (uu *UserUpdate) ClearBranchCode() *UserUpdate {
 }
 
 // SetBanksID sets the "banks" edge to the Bank entity by ID.
-func (uu *UserUpdate) SetBanksID(id int) *UserUpdate {
+func (uu *UserUpdate) SetBanksID(id string) *UserUpdate {
 	uu.mutation.SetBanksID(id)
-	return uu
-}
-
-// SetNillableBanksID sets the "banks" edge to the Bank entity by ID if the given value is not nil.
-func (uu *UserUpdate) SetNillableBanksID(id *int) *UserUpdate {
-	if id != nil {
-		uu = uu.SetBanksID(*id)
-	}
 	return uu
 }
 
@@ -225,6 +203,9 @@ func (uu *UserUpdate) check() error {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
 		}
 	}
+	if _, ok := uu.mutation.BanksID(); uu.mutation.BanksCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "User.banks"`)
+	}
 	return nil
 }
 
@@ -267,12 +248,6 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if uu.mutation.AccountCodeCleared() {
 		_spec.ClearField(user.FieldAccountCode, field.TypeString)
 	}
-	if value, ok := uu.mutation.BankCode(); ok {
-		_spec.SetField(user.FieldBankCode, field.TypeString, value)
-	}
-	if uu.mutation.BankCodeCleared() {
-		_spec.ClearField(user.FieldBankCode, field.TypeString)
-	}
 	if value, ok := uu.mutation.BranchCode(); ok {
 		_spec.SetField(user.FieldBranchCode, field.TypeString, value)
 	}
@@ -287,7 +262,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.BanksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -300,7 +275,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.BanksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -412,20 +387,6 @@ func (uuo *UserUpdateOne) SetBankCode(s string) *UserUpdateOne {
 	return uuo
 }
 
-// SetNillableBankCode sets the "bank_code" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableBankCode(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetBankCode(*s)
-	}
-	return uuo
-}
-
-// ClearBankCode clears the value of the "bank_code" field.
-func (uuo *UserUpdateOne) ClearBankCode() *UserUpdateOne {
-	uuo.mutation.ClearBankCode()
-	return uuo
-}
-
 // SetBranchCode sets the "branch_code" field.
 func (uuo *UserUpdateOne) SetBranchCode(s string) *UserUpdateOne {
 	uuo.mutation.SetBranchCode(s)
@@ -447,16 +408,8 @@ func (uuo *UserUpdateOne) ClearBranchCode() *UserUpdateOne {
 }
 
 // SetBanksID sets the "banks" edge to the Bank entity by ID.
-func (uuo *UserUpdateOne) SetBanksID(id int) *UserUpdateOne {
+func (uuo *UserUpdateOne) SetBanksID(id string) *UserUpdateOne {
 	uuo.mutation.SetBanksID(id)
-	return uuo
-}
-
-// SetNillableBanksID sets the "banks" edge to the Bank entity by ID if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableBanksID(id *int) *UserUpdateOne {
-	if id != nil {
-		uuo = uuo.SetBanksID(*id)
-	}
 	return uuo
 }
 
@@ -537,6 +490,9 @@ func (uuo *UserUpdateOne) check() error {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
 		}
 	}
+	if _, ok := uuo.mutation.BanksID(); uuo.mutation.BanksCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "User.banks"`)
+	}
 	return nil
 }
 
@@ -596,12 +552,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if uuo.mutation.AccountCodeCleared() {
 		_spec.ClearField(user.FieldAccountCode, field.TypeString)
 	}
-	if value, ok := uuo.mutation.BankCode(); ok {
-		_spec.SetField(user.FieldBankCode, field.TypeString, value)
-	}
-	if uuo.mutation.BankCodeCleared() {
-		_spec.ClearField(user.FieldBankCode, field.TypeString)
-	}
 	if value, ok := uuo.mutation.BranchCode(); ok {
 		_spec.SetField(user.FieldBranchCode, field.TypeString, value)
 	}
@@ -616,7 +566,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.BanksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeString),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -629,7 +579,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.BanksColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt),
+				IDSpec: sqlgraph.NewFieldSpec(bank.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

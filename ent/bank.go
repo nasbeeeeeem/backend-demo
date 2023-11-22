@@ -15,9 +15,7 @@ import (
 type Bank struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// Code holds the value of the "code" field.
-	Code string `json:"code,omitempty"`
+	ID string `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -49,9 +47,7 @@ func (*Bank) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case bank.FieldID:
-			values[i] = new(sql.NullInt64)
-		case bank.FieldCode, bank.FieldName:
+		case bank.FieldID, bank.FieldName:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -69,16 +65,10 @@ func (b *Bank) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case bank.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			b.ID = int(value.Int64)
-		case bank.FieldCode:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field code", values[i])
+				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				b.Code = value.String
+				b.ID = value.String
 			}
 		case bank.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -127,9 +117,6 @@ func (b *Bank) String() string {
 	var builder strings.Builder
 	builder.WriteString("Bank(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", b.ID))
-	builder.WriteString("code=")
-	builder.WriteString(b.Code)
-	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(b.Name)
 	builder.WriteByte(')')

@@ -11,6 +11,7 @@ type UseCase interface {
 	Create(c context.Context, name string, email string) (*ent.User, error)
 	MeInfo(c context.Context, email string) (*ent.User, error)
 	Users(c context.Context) ([]*ent.User, error)
+	Update(c context.Context, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) error
 }
 
 type useCase struct {
@@ -55,6 +56,18 @@ func (uc *useCase) Users(c context.Context) ([]*ent.User, error) {
 	}
 
 	return users, nil
+}
+
+// Update implements UseCase.
+func (uc *useCase) Update(c context.Context, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) error {
+	ctx, cancel := context.WithTimeout(c, uc.timeout)
+	defer cancel()
+
+	err := uc.repository.UpdateUser(ctx, name, email, photoUrl, accountCode, bankCode, branchCode)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func NewUseCase(userRepo repository.UserRepository) UseCase {

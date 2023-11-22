@@ -14,6 +14,7 @@ type Handler interface {
 	HandleCreate(c *gin.Context)
 	HandleUsers(c *gin.Context)
 	HandleMeInfo(c *gin.Context)
+	HandleUpdate(c *gin.Context)
 }
 
 type handler struct {
@@ -93,6 +94,29 @@ func (h *handler) HandleUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"users": users,
 	})
+}
+
+// HandleUpdate implements Handler.
+func (h *handler) HandleUpdate(c *gin.Context) {
+	type request struct {
+		Name        string `json:"name"`
+		Email       string `json:"email"`
+		PhotoUrl    string `json:"photoUrl"`
+		AccountCode string `json:"accountCode"`
+		BankCode    string `json:"bankCode"`
+		BranchCode  string `json:"branchCode"`
+	}
+
+	r := new(request)
+	if err := c.Bind(&r); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+	}
+	err := h.useCase.Update(c, r.Name, r.Email, r.PhotoUrl, r.AccountCode, r.BankCode, r.BranchCode)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "update successfully."})
 }
 
 func NewHandler(userUseCase usecase.UseCase) Handler {

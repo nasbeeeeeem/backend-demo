@@ -20,15 +20,15 @@ type BankCreate struct {
 	hooks    []Hook
 }
 
-// SetCode sets the "code" field.
-func (bc *BankCreate) SetCode(s string) *BankCreate {
-	bc.mutation.SetCode(s)
-	return bc
-}
-
 // SetName sets the "name" field.
 func (bc *BankCreate) SetName(s string) *BankCreate {
 	bc.mutation.SetName(s)
+	return bc
+}
+
+// SetID sets the "id" field.
+func (bc *BankCreate) SetID(s string) *BankCreate {
+	bc.mutation.SetID(s)
 	return bc
 }
 
@@ -81,20 +81,17 @@ func (bc *BankCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (bc *BankCreate) check() error {
-	if _, ok := bc.mutation.Code(); !ok {
-		return &ValidationError{Name: "code", err: errors.New(`ent: missing required field "Bank.code"`)}
-	}
-	if v, ok := bc.mutation.Code(); ok {
-		if err := bank.CodeValidator(v); err != nil {
-			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "Bank.code": %w`, err)}
-		}
-	}
 	if _, ok := bc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Bank.name"`)}
 	}
 	if v, ok := bc.mutation.Name(); ok {
 		if err := bank.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Bank.name": %w`, err)}
+		}
+	}
+	if v, ok := bc.mutation.ID(); ok {
+		if err := bank.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Bank.id": %w`, err)}
 		}
 	}
 	return nil
@@ -111,8 +108,13 @@ func (bc *BankCreate) sqlSave(ctx context.Context) (*Bank, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected Bank.ID type: %T", _spec.ID.Value)
+		}
+	}
 	bc.mutation.id = &_node.ID
 	bc.mutation.done = true
 	return _node, nil
@@ -121,11 +123,11 @@ func (bc *BankCreate) sqlSave(ctx context.Context) (*Bank, error) {
 func (bc *BankCreate) createSpec() (*Bank, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Bank{config: bc.config}
-		_spec = sqlgraph.NewCreateSpec(bank.Table, sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(bank.Table, sqlgraph.NewFieldSpec(bank.FieldID, field.TypeString))
 	)
-	if value, ok := bc.mutation.Code(); ok {
-		_spec.SetField(bank.FieldCode, field.TypeString, value)
-		_node.Code = value
+	if id, ok := bc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := bc.mutation.Name(); ok {
 		_spec.SetField(bank.FieldName, field.TypeString, value)
@@ -194,10 +196,6 @@ func (bcb *BankCreateBulk) Save(ctx context.Context) ([]*Bank, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

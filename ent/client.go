@@ -284,7 +284,7 @@ func (c *BankClient) UpdateOne(b *Bank) *BankUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *BankClient) UpdateOneID(id int) *BankUpdateOne {
+func (c *BankClient) UpdateOneID(id string) *BankUpdateOne {
 	mutation := newBankMutation(c.config, OpUpdateOne, withBankID(id))
 	return &BankUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -301,7 +301,7 @@ func (c *BankClient) DeleteOne(b *Bank) *BankDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *BankClient) DeleteOneID(id int) *BankDeleteOne {
+func (c *BankClient) DeleteOneID(id string) *BankDeleteOne {
 	builder := c.Delete().Where(bank.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -318,12 +318,12 @@ func (c *BankClient) Query() *BankQuery {
 }
 
 // Get returns a Bank entity by its id.
-func (c *BankClient) Get(ctx context.Context, id int) (*Bank, error) {
+func (c *BankClient) Get(ctx context.Context, id string) (*Bank, error) {
 	return c.Query().Where(bank.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *BankClient) GetX(ctx context.Context, id int) *Bank {
+func (c *BankClient) GetX(ctx context.Context, id string) *Bank {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

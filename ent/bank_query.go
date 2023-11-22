@@ -106,8 +106,8 @@ func (bq *BankQuery) FirstX(ctx context.Context) *Bank {
 
 // FirstID returns the first Bank ID from the query.
 // Returns a *NotFoundError when no Bank ID was found.
-func (bq *BankQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (bq *BankQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = bq.Limit(1).IDs(setContextOp(ctx, bq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -119,7 +119,7 @@ func (bq *BankQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (bq *BankQuery) FirstIDX(ctx context.Context) int {
+func (bq *BankQuery) FirstIDX(ctx context.Context) string {
 	id, err := bq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -157,8 +157,8 @@ func (bq *BankQuery) OnlyX(ctx context.Context) *Bank {
 // OnlyID is like Only, but returns the only Bank ID in the query.
 // Returns a *NotSingularError when more than one Bank ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (bq *BankQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (bq *BankQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = bq.Limit(2).IDs(setContextOp(ctx, bq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -174,7 +174,7 @@ func (bq *BankQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (bq *BankQuery) OnlyIDX(ctx context.Context) int {
+func (bq *BankQuery) OnlyIDX(ctx context.Context) string {
 	id, err := bq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -202,7 +202,7 @@ func (bq *BankQuery) AllX(ctx context.Context) []*Bank {
 }
 
 // IDs executes the query and returns a list of Bank IDs.
-func (bq *BankQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (bq *BankQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if bq.ctx.Unique == nil && bq.path != nil {
 		bq.Unique(true)
 	}
@@ -214,7 +214,7 @@ func (bq *BankQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (bq *BankQuery) IDsX(ctx context.Context) []int {
+func (bq *BankQuery) IDsX(ctx context.Context) []string {
 	ids, err := bq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -298,12 +298,12 @@ func (bq *BankQuery) WithUsers(opts ...func(*UserQuery)) *BankQuery {
 // Example:
 //
 //	var v []struct {
-//		Code string `json:"code,omitempty"`
+//		Name string `json:"name,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Bank.Query().
-//		GroupBy(bank.FieldCode).
+//		GroupBy(bank.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (bq *BankQuery) GroupBy(field string, fields ...string) *BankGroupBy {
@@ -321,11 +321,11 @@ func (bq *BankQuery) GroupBy(field string, fields ...string) *BankGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Code string `json:"code,omitempty"`
+//		Name string `json:"name,omitempty"`
 //	}
 //
 //	client.Bank.Query().
-//		Select(bank.FieldCode).
+//		Select(bank.FieldName).
 //		Scan(ctx, &v)
 func (bq *BankQuery) Select(fields ...string) *BankSelect {
 	bq.ctx.Fields = append(bq.ctx.Fields, fields...)
@@ -404,7 +404,7 @@ func (bq *BankQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Bank, e
 
 func (bq *BankQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*Bank, init func(*Bank), assign func(*Bank, *User)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*Bank)
+	nodeids := make(map[string]*Bank)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -412,7 +412,9 @@ func (bq *BankQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*B
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(user.FieldBankCode)
+	}
 	query.Where(predicate.User(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(bank.UsersColumn), fks...))
 	}))
@@ -421,13 +423,13 @@ func (bq *BankQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*B
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.bank_users
+		fk := n.BankCode
 		if fk == nil {
-			return fmt.Errorf(`foreign-key "bank_users" is nil for node %v`, n.ID)
+			return fmt.Errorf(`foreign-key "bank_code" is nil for node %v`, n.ID)
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "bank_users" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "bank_code" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -444,7 +446,7 @@ func (bq *BankQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (bq *BankQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(bank.Table, bank.Columns, sqlgraph.NewFieldSpec(bank.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(bank.Table, bank.Columns, sqlgraph.NewFieldSpec(bank.FieldID, field.TypeString))
 	_spec.From = bq.sql
 	if unique := bq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

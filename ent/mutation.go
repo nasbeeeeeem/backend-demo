@@ -36,8 +36,7 @@ type BankMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
-	code          *string
+	id            *string
 	name          *string
 	clearedFields map[string]struct{}
 	users         map[int]struct{}
@@ -68,7 +67,7 @@ func newBankMutation(c config, op Op, opts ...bankOption) *BankMutation {
 }
 
 // withBankID sets the ID field of the mutation.
-func withBankID(id int) bankOption {
+func withBankID(id string) bankOption {
 	return func(m *BankMutation) {
 		var (
 			err   error
@@ -118,9 +117,15 @@ func (m BankMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Bank entities.
+func (m *BankMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *BankMutation) ID() (id int, exists bool) {
+func (m *BankMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -131,12 +136,12 @@ func (m *BankMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *BankMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *BankMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -144,42 +149,6 @@ func (m *BankMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetCode sets the "code" field.
-func (m *BankMutation) SetCode(s string) {
-	m.code = &s
-}
-
-// Code returns the value of the "code" field in the mutation.
-func (m *BankMutation) Code() (r string, exists bool) {
-	v := m.code
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCode returns the old "code" field's value of the Bank entity.
-// If the Bank object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BankMutation) OldCode(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCode is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCode requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCode: %w", err)
-	}
-	return oldValue.Code, nil
-}
-
-// ResetCode resets all changes to the "code" field.
-func (m *BankMutation) ResetCode() {
-	m.code = nil
 }
 
 // SetName sets the "name" field.
@@ -306,10 +275,7 @@ func (m *BankMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BankMutation) Fields() []string {
-	fields := make([]string, 0, 2)
-	if m.code != nil {
-		fields = append(fields, bank.FieldCode)
-	}
+	fields := make([]string, 0, 1)
 	if m.name != nil {
 		fields = append(fields, bank.FieldName)
 	}
@@ -321,8 +287,6 @@ func (m *BankMutation) Fields() []string {
 // schema.
 func (m *BankMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case bank.FieldCode:
-		return m.Code()
 	case bank.FieldName:
 		return m.Name()
 	}
@@ -334,8 +298,6 @@ func (m *BankMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *BankMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case bank.FieldCode:
-		return m.OldCode(ctx)
 	case bank.FieldName:
 		return m.OldName(ctx)
 	}
@@ -347,13 +309,6 @@ func (m *BankMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *BankMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case bank.FieldCode:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCode(v)
-		return nil
 	case bank.FieldName:
 		v, ok := value.(string)
 		if !ok {
@@ -410,9 +365,6 @@ func (m *BankMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *BankMutation) ResetField(name string) error {
 	switch name {
-	case bank.FieldCode:
-		m.ResetCode()
-		return nil
 	case bank.FieldName:
 		m.ResetName()
 		return nil
@@ -1045,10 +997,9 @@ type UserMutation struct {
 	updated_at    *time.Time
 	deleted_at    *time.Time
 	account_code  *string
-	bank_code     *string
 	branch_code   *string
 	clearedFields map[string]struct{}
-	banks         *int
+	banks         *string
 	clearedbanks  bool
 	done          bool
 	oldValue      func(context.Context) (*User, error)
@@ -1446,12 +1397,12 @@ func (m *UserMutation) ResetAccountCode() {
 
 // SetBankCode sets the "bank_code" field.
 func (m *UserMutation) SetBankCode(s string) {
-	m.bank_code = &s
+	m.banks = &s
 }
 
 // BankCode returns the value of the "bank_code" field in the mutation.
 func (m *UserMutation) BankCode() (r string, exists bool) {
-	v := m.bank_code
+	v := m.banks
 	if v == nil {
 		return
 	}
@@ -1475,22 +1426,9 @@ func (m *UserMutation) OldBankCode(ctx context.Context) (v *string, err error) {
 	return oldValue.BankCode, nil
 }
 
-// ClearBankCode clears the value of the "bank_code" field.
-func (m *UserMutation) ClearBankCode() {
-	m.bank_code = nil
-	m.clearedFields[user.FieldBankCode] = struct{}{}
-}
-
-// BankCodeCleared returns if the "bank_code" field was cleared in this mutation.
-func (m *UserMutation) BankCodeCleared() bool {
-	_, ok := m.clearedFields[user.FieldBankCode]
-	return ok
-}
-
 // ResetBankCode resets all changes to the "bank_code" field.
 func (m *UserMutation) ResetBankCode() {
-	m.bank_code = nil
-	delete(m.clearedFields, user.FieldBankCode)
+	m.banks = nil
 }
 
 // SetBranchCode sets the "branch_code" field.
@@ -1543,13 +1481,14 @@ func (m *UserMutation) ResetBranchCode() {
 }
 
 // SetBanksID sets the "banks" edge to the Bank entity by id.
-func (m *UserMutation) SetBanksID(id int) {
+func (m *UserMutation) SetBanksID(id string) {
 	m.banks = &id
 }
 
 // ClearBanks clears the "banks" edge to the Bank entity.
 func (m *UserMutation) ClearBanks() {
 	m.clearedbanks = true
+	m.clearedFields[user.FieldBankCode] = struct{}{}
 }
 
 // BanksCleared reports if the "banks" edge to the Bank entity was cleared.
@@ -1558,7 +1497,7 @@ func (m *UserMutation) BanksCleared() bool {
 }
 
 // BanksID returns the "banks" edge ID in the mutation.
-func (m *UserMutation) BanksID() (id int, exists bool) {
+func (m *UserMutation) BanksID() (id string, exists bool) {
 	if m.banks != nil {
 		return *m.banks, true
 	}
@@ -1568,7 +1507,7 @@ func (m *UserMutation) BanksID() (id int, exists bool) {
 // BanksIDs returns the "banks" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // BanksID instead. It exists only for internal usage by the builders.
-func (m *UserMutation) BanksIDs() (ids []int) {
+func (m *UserMutation) BanksIDs() (ids []string) {
 	if id := m.banks; id != nil {
 		ids = append(ids, *id)
 	}
@@ -1637,7 +1576,7 @@ func (m *UserMutation) Fields() []string {
 	if m.account_code != nil {
 		fields = append(fields, user.FieldAccountCode)
 	}
-	if m.bank_code != nil {
+	if m.banks != nil {
 		fields = append(fields, user.FieldBankCode)
 	}
 	if m.branch_code != nil {
@@ -1807,9 +1746,6 @@ func (m *UserMutation) ClearedFields() []string {
 	if m.FieldCleared(user.FieldAccountCode) {
 		fields = append(fields, user.FieldAccountCode)
 	}
-	if m.FieldCleared(user.FieldBankCode) {
-		fields = append(fields, user.FieldBankCode)
-	}
 	if m.FieldCleared(user.FieldBranchCode) {
 		fields = append(fields, user.FieldBranchCode)
 	}
@@ -1835,9 +1771,6 @@ func (m *UserMutation) ClearField(name string) error {
 		return nil
 	case user.FieldAccountCode:
 		m.ClearAccountCode()
-		return nil
-	case user.FieldBankCode:
-		m.ClearBankCode()
 		return nil
 	case user.FieldBranchCode:
 		m.ClearBranchCode()
