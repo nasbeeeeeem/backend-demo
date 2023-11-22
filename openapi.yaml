@@ -49,6 +49,10 @@ paths:
               properties:
                 name: { type: string, example: "ユーザー名" }
                 email: { type: string, example: "メールアドレス" }
+                potoUrl: { type: string, example "プロフィール画像のURL"}
+                accountCode: {type: string, example: "口座番号"}
+                bankCode: {type: string, example: "金融機関コード"}
+                branchCode: {type: string, example: "支店番号"}
         500:
           description: "失敗"
     get:
@@ -68,6 +72,10 @@ paths:
             properties:
               name: {type: string, example: "ユーザー名"}
               email: {type: string, example: "メールアドレス"}
+              potoUrl: { type: string, example "プロフィール画像のURL"}
+              accountCode: {type: string, example: "口座番号"}
+              bankCode: {type: string, example: "金融機関コード"}
+              branchCode: {type: string, example: "支店番号"}
         500:
           description: "失敗"
   # 自身のユーザー情報を取得するエンドポイント

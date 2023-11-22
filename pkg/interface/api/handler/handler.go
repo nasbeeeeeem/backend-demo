@@ -81,6 +81,7 @@ func (h *handler) HandleMeInfo(c *gin.Context) {
 		"token":       token,
 		"name":        user.Name,
 		"email":       user.Email,
+		"photoUrl":    user.PhotoURL,
 		"accountCode": user.AccountCode,
 		"bankCode":    user.BankCode,
 		"branchCode":  user.BranchCode,
