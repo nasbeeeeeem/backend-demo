@@ -29,6 +29,10 @@ func Server(dsn string) {
 	userUseCase := usecase.NewUseCase(userRepoImpl)
 	userHandler := handler.NewHandler(userUseCase)
 
+	eventRepoImpl := repositoryimpl.NewEventRepoImpl(dbClient)
+	eventUseCase := usecase.NewEventUseCase(eventRepoImpl)
+	eventHandler := handler.NewEventtHandler(eventUseCase)
+
 	r = gin.Default()
 
 	// CORSの設定
@@ -73,19 +77,21 @@ func Server(dsn string) {
 	// 	payment.DELETE("/:id")
 	// }
 
-	// // イベント関係のエンドポインおｔ
-	// event := r.Group("/event")
-	// {
-	// 	// イベント一覧
-	// 	event.GET("/")
-	// 	// ：idごとのイベント
-	// 	// 参照
-	// 	event.GET("/:id")
-	// 	// 修正
-	// 	event.PUT("/:id")
-	// 	// 削除
-	// 	event.DELETE("/:id")
-	// }
+	// イベント関係のエンドポイント
+	event := r.Group("/event")
+	{
+		// 作成
+		event.POST("/", eventHandler.HandleCreate)
+		// 一覧参照
+		event.GET("/", eventHandler.HnadleEvents)
+		// ：idごとのイベント
+		// 参照
+		// event.GET("/:id")
+		// 修正
+		// event.PUT("/", eventHandler.HandleUpdate)
+		// 削除
+		// event.DELETE("/", eventHandler.HandleDelete)
+	}
 
 	log.Println("Server running...")
 	if err := r.Run(":8080"); err != nil {

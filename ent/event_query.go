@@ -5,6 +5,7 @@ package ent
 import (
 	"backend-demo/ent/event"
 	"backend-demo/ent/predicate"
+	"backend-demo/ent/user"
 	"context"
 	"fmt"
 	"math"
@@ -21,6 +22,7 @@ type EventQuery struct {
 	order      []event.OrderOption
 	inters     []Interceptor
 	predicates []predicate.Event
+	withUsers  *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -55,6 +57,28 @@ func (eq *EventQuery) Unique(unique bool) *EventQuery {
 func (eq *EventQuery) Order(o ...event.OrderOption) *EventQuery {
 	eq.order = append(eq.order, o...)
 	return eq
+}
+
+// QueryUsers chains the current query on the "users" edge.
+func (eq *EventQuery) QueryUsers() *UserQuery {
+	query := (&UserClient{config: eq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := eq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := eq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(event.Table, event.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, event.UsersTable, event.UsersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(eq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Event entity from the query.
@@ -249,14 +273,38 @@ func (eq *EventQuery) Clone() *EventQuery {
 		order:      append([]event.OrderOption{}, eq.order...),
 		inters:     append([]Interceptor{}, eq.inters...),
 		predicates: append([]predicate.Event{}, eq.predicates...),
+		withUsers:  eq.withUsers.Clone(),
 		// clone intermediate query.
 		sql:  eq.sql.Clone(),
 		path: eq.path,
 	}
 }
 
+// WithUsers tells the query-builder to eager-load the nodes that are connected to
+// the "users" edge. The optional arguments are used to configure the query builder of the edge.
+func (eq *EventQuery) WithUsers(opts ...func(*UserQuery)) *EventQuery {
+	query := (&UserClient{config: eq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	eq.withUsers = query
+	return eq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		Name string `json:"name,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Event.Query().
+//		GroupBy(event.FieldName).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (eq *EventQuery) GroupBy(field string, fields ...string) *EventGroupBy {
 	eq.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &EventGroupBy{build: eq}
@@ -268,6 +316,16 @@ func (eq *EventQuery) GroupBy(field string, fields ...string) *EventGroupBy {
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		Name string `json:"name,omitempty"`
+//	}
+//
+//	client.Event.Query().
+//		Select(event.FieldName).
+//		Scan(ctx, &v)
 func (eq *EventQuery) Select(fields ...string) *EventSelect {
 	eq.ctx.Fields = append(eq.ctx.Fields, fields...)
 	sbuild := &EventSelect{EventQuery: eq}
@@ -309,8 +367,11 @@ func (eq *EventQuery) prepareQuery(ctx context.Context) error {
 
 func (eq *EventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Event, error) {
 	var (
-		nodes = []*Event{}
-		_spec = eq.querySpec()
+		nodes       = []*Event{}
+		_spec       = eq.querySpec()
+		loadedTypes = [1]bool{
+			eq.withUsers != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Event).scanValues(nil, columns)
@@ -318,6 +379,7 @@ func (eq *EventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Event,
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Event{config: eq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -329,7 +391,43 @@ func (eq *EventQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Event,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := eq.withUsers; query != nil {
+		if err := eq.loadUsers(ctx, query, nodes, nil,
+			func(n *Event, e *User) { n.Edges.Users = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (eq *EventQuery) loadUsers(ctx context.Context, query *UserQuery, nodes []*Event, init func(*Event), assign func(*Event, *User)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*Event)
+	for i := range nodes {
+		fk := nodes[i].CreatedBy
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(user.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "created_by" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (eq *EventQuery) sqlCount(ctx context.Context) (int, error) {
@@ -356,6 +454,9 @@ func (eq *EventQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != event.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if eq.withUsers != nil {
+			_spec.Node.AddColumnOnce(event.FieldCreatedBy)
 		}
 	}
 	if ps := eq.predicates; len(ps) > 0 {

@@ -36,5 +36,6 @@ func (User) Edges() []ent.Edge {
 			Field("bank_code").
 			Unique().
 			Required(),
+		edge.To("events", Event.Type),
 	}
 }

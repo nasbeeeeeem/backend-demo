@@ -4,6 +4,7 @@ package ent
 
 import (
 	"backend-demo/ent/bank"
+	"backend-demo/ent/event"
 	"backend-demo/ent/user"
 	"context"
 	"errors"
@@ -132,6 +133,21 @@ func (uc *UserCreate) SetBanksID(id string) *UserCreate {
 // SetBanks sets the "banks" edge to the Bank entity.
 func (uc *UserCreate) SetBanks(b *Bank) *UserCreate {
 	return uc.SetBanksID(b.ID)
+}
+
+// AddEventIDs adds the "events" edge to the Event entity by IDs.
+func (uc *UserCreate) AddEventIDs(ids ...int) *UserCreate {
+	uc.mutation.AddEventIDs(ids...)
+	return uc
+}
+
+// AddEvents adds the "events" edges to the Event entity.
+func (uc *UserCreate) AddEvents(e ...*Event) *UserCreate {
+	ids := make([]int, len(e))
+	for i := range e {
+		ids[i] = e[i].ID
+	}
+	return uc.AddEventIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -282,6 +298,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.BankCode = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.EventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.EventsTable,
+			Columns: []string{user.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

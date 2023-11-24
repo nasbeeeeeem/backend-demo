@@ -4,6 +4,7 @@ package ent
 
 import (
 	"backend-demo/ent/bank"
+	"backend-demo/ent/event"
 	"backend-demo/ent/schema"
 	"backend-demo/ent/user"
 	"time"
@@ -38,6 +39,22 @@ func init() {
 			return nil
 		}
 	}()
+	eventFields := schema.Event{}.Fields()
+	_ = eventFields
+	// eventDescName is the schema descriptor for name field.
+	eventDescName := eventFields[0].Descriptor()
+	// event.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	event.NameValidator = eventDescName.Validators[0].(func(string) error)
+	// eventDescCreatedAt is the schema descriptor for created_at field.
+	eventDescCreatedAt := eventFields[2].Descriptor()
+	// event.DefaultCreatedAt holds the default value on creation for the created_at field.
+	event.DefaultCreatedAt = eventDescCreatedAt.Default.(func() time.Time)
+	// eventDescUpdatedAt is the schema descriptor for updated_at field.
+	eventDescUpdatedAt := eventFields[3].Descriptor()
+	// event.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	event.DefaultUpdatedAt = eventDescUpdatedAt.Default.(func() time.Time)
+	// event.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	event.UpdateDefaultUpdatedAt = eventDescUpdatedAt.UpdateDefault.(func() time.Time)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescName is the schema descriptor for name field.

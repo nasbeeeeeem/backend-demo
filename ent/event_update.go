@@ -5,9 +5,11 @@ package ent
 import (
 	"backend-demo/ent/event"
 	"backend-demo/ent/predicate"
+	"backend-demo/ent/user"
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -27,13 +29,69 @@ func (eu *EventUpdate) Where(ps ...predicate.Event) *EventUpdate {
 	return eu
 }
 
+// SetName sets the "name" field.
+func (eu *EventUpdate) SetName(s string) *EventUpdate {
+	eu.mutation.SetName(s)
+	return eu
+}
+
+// SetCreatedBy sets the "created_by" field.
+func (eu *EventUpdate) SetCreatedBy(i int) *EventUpdate {
+	eu.mutation.SetCreatedBy(i)
+	return eu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (eu *EventUpdate) SetUpdatedAt(t time.Time) *EventUpdate {
+	eu.mutation.SetUpdatedAt(t)
+	return eu
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (eu *EventUpdate) SetDeletedAt(t time.Time) *EventUpdate {
+	eu.mutation.SetDeletedAt(t)
+	return eu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (eu *EventUpdate) SetNillableDeletedAt(t *time.Time) *EventUpdate {
+	if t != nil {
+		eu.SetDeletedAt(*t)
+	}
+	return eu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (eu *EventUpdate) ClearDeletedAt() *EventUpdate {
+	eu.mutation.ClearDeletedAt()
+	return eu
+}
+
+// SetUsersID sets the "users" edge to the User entity by ID.
+func (eu *EventUpdate) SetUsersID(id int) *EventUpdate {
+	eu.mutation.SetUsersID(id)
+	return eu
+}
+
+// SetUsers sets the "users" edge to the User entity.
+func (eu *EventUpdate) SetUsers(u *User) *EventUpdate {
+	return eu.SetUsersID(u.ID)
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (eu *EventUpdate) Mutation() *EventMutation {
 	return eu.mutation
 }
 
+// ClearUsers clears the "users" edge to the User entity.
+func (eu *EventUpdate) ClearUsers() *EventUpdate {
+	eu.mutation.ClearUsers()
+	return eu
+}
+
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (eu *EventUpdate) Save(ctx context.Context) (int, error) {
+	eu.defaults()
 	return withHooks(ctx, eu.sqlSave, eu.mutation, eu.hooks)
 }
 
@@ -59,7 +117,31 @@ func (eu *EventUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (eu *EventUpdate) defaults() {
+	if _, ok := eu.mutation.UpdatedAt(); !ok {
+		v := event.UpdateDefaultUpdatedAt()
+		eu.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (eu *EventUpdate) check() error {
+	if v, ok := eu.mutation.Name(); ok {
+		if err := event.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Event.name": %w`, err)}
+		}
+	}
+	if _, ok := eu.mutation.UsersID(); eu.mutation.UsersCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Event.users"`)
+	}
+	return nil
+}
+
 func (eu *EventUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := eu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(event.Table, event.Columns, sqlgraph.NewFieldSpec(event.FieldID, field.TypeInt))
 	if ps := eu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -67,6 +149,47 @@ func (eu *EventUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := eu.mutation.Name(); ok {
+		_spec.SetField(event.FieldName, field.TypeString, value)
+	}
+	if value, ok := eu.mutation.UpdatedAt(); ok {
+		_spec.SetField(event.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := eu.mutation.DeletedAt(); ok {
+		_spec.SetField(event.FieldDeletedAt, field.TypeTime, value)
+	}
+	if eu.mutation.DeletedAtCleared() {
+		_spec.ClearField(event.FieldDeletedAt, field.TypeTime)
+	}
+	if eu.mutation.UsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.UsersTable,
+			Columns: []string{event.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := eu.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.UsersTable,
+			Columns: []string{event.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, eu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -88,9 +211,64 @@ type EventUpdateOne struct {
 	mutation *EventMutation
 }
 
+// SetName sets the "name" field.
+func (euo *EventUpdateOne) SetName(s string) *EventUpdateOne {
+	euo.mutation.SetName(s)
+	return euo
+}
+
+// SetCreatedBy sets the "created_by" field.
+func (euo *EventUpdateOne) SetCreatedBy(i int) *EventUpdateOne {
+	euo.mutation.SetCreatedBy(i)
+	return euo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (euo *EventUpdateOne) SetUpdatedAt(t time.Time) *EventUpdateOne {
+	euo.mutation.SetUpdatedAt(t)
+	return euo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (euo *EventUpdateOne) SetDeletedAt(t time.Time) *EventUpdateOne {
+	euo.mutation.SetDeletedAt(t)
+	return euo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (euo *EventUpdateOne) SetNillableDeletedAt(t *time.Time) *EventUpdateOne {
+	if t != nil {
+		euo.SetDeletedAt(*t)
+	}
+	return euo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (euo *EventUpdateOne) ClearDeletedAt() *EventUpdateOne {
+	euo.mutation.ClearDeletedAt()
+	return euo
+}
+
+// SetUsersID sets the "users" edge to the User entity by ID.
+func (euo *EventUpdateOne) SetUsersID(id int) *EventUpdateOne {
+	euo.mutation.SetUsersID(id)
+	return euo
+}
+
+// SetUsers sets the "users" edge to the User entity.
+func (euo *EventUpdateOne) SetUsers(u *User) *EventUpdateOne {
+	return euo.SetUsersID(u.ID)
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (euo *EventUpdateOne) Mutation() *EventMutation {
 	return euo.mutation
+}
+
+// ClearUsers clears the "users" edge to the User entity.
+func (euo *EventUpdateOne) ClearUsers() *EventUpdateOne {
+	euo.mutation.ClearUsers()
+	return euo
 }
 
 // Where appends a list predicates to the EventUpdate builder.
@@ -108,6 +286,7 @@ func (euo *EventUpdateOne) Select(field string, fields ...string) *EventUpdateOn
 
 // Save executes the query and returns the updated Event entity.
 func (euo *EventUpdateOne) Save(ctx context.Context) (*Event, error) {
+	euo.defaults()
 	return withHooks(ctx, euo.sqlSave, euo.mutation, euo.hooks)
 }
 
@@ -133,7 +312,31 @@ func (euo *EventUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (euo *EventUpdateOne) defaults() {
+	if _, ok := euo.mutation.UpdatedAt(); !ok {
+		v := event.UpdateDefaultUpdatedAt()
+		euo.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (euo *EventUpdateOne) check() error {
+	if v, ok := euo.mutation.Name(); ok {
+		if err := event.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Event.name": %w`, err)}
+		}
+	}
+	if _, ok := euo.mutation.UsersID(); euo.mutation.UsersCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Event.users"`)
+	}
+	return nil
+}
+
 func (euo *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error) {
+	if err := euo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(event.Table, event.Columns, sqlgraph.NewFieldSpec(event.FieldID, field.TypeInt))
 	id, ok := euo.mutation.ID()
 	if !ok {
@@ -158,6 +361,47 @@ func (euo *EventUpdateOne) sqlSave(ctx context.Context) (_node *Event, err error
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := euo.mutation.Name(); ok {
+		_spec.SetField(event.FieldName, field.TypeString, value)
+	}
+	if value, ok := euo.mutation.UpdatedAt(); ok {
+		_spec.SetField(event.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := euo.mutation.DeletedAt(); ok {
+		_spec.SetField(event.FieldDeletedAt, field.TypeTime, value)
+	}
+	if euo.mutation.DeletedAtCleared() {
+		_spec.ClearField(event.FieldDeletedAt, field.TypeTime)
+	}
+	if euo.mutation.UsersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.UsersTable,
+			Columns: []string{event.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := euo.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.UsersTable,
+			Columns: []string{event.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Event{config: euo.config}
 	_spec.Assign = _node.assignValues

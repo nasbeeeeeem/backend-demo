@@ -34,6 +34,8 @@ const (
 	FieldBranchCode = "branch_code"
 	// EdgeBanks holds the string denoting the banks edge name in mutations.
 	EdgeBanks = "banks"
+	// EdgeEvents holds the string denoting the events edge name in mutations.
+	EdgeEvents = "events"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// BanksTable is the table that holds the banks relation/edge.
@@ -43,6 +45,13 @@ const (
 	BanksInverseTable = "banks"
 	// BanksColumn is the table column denoting the banks relation/edge.
 	BanksColumn = "bank_code"
+	// EventsTable is the table that holds the events relation/edge.
+	EventsTable = "events"
+	// EventsInverseTable is the table name for the Event entity.
+	// It exists in this package in order to avoid circular dependency with the "event" package.
+	EventsInverseTable = "events"
+	// EventsColumn is the table column denoting the events relation/edge.
+	EventsColumn = "created_by"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -141,10 +150,31 @@ func ByBanksField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newBanksStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByEventsCount orders the results by events count.
+func ByEventsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newEventsStep(), opts...)
+	}
+}
+
+// ByEvents orders the results by events terms.
+func ByEvents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newEventsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newBanksStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BanksInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, BanksTable, BanksColumn),
+	)
+}
+func newEventsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(EventsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, EventsTable, EventsColumn),
 	)
 }

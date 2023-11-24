@@ -4,8 +4,11 @@ package ent
 
 import (
 	"backend-demo/ent/event"
+	"backend-demo/ent/user"
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -18,6 +21,71 @@ type EventCreate struct {
 	hooks    []Hook
 }
 
+// SetName sets the "name" field.
+func (ec *EventCreate) SetName(s string) *EventCreate {
+	ec.mutation.SetName(s)
+	return ec
+}
+
+// SetCreatedBy sets the "created_by" field.
+func (ec *EventCreate) SetCreatedBy(i int) *EventCreate {
+	ec.mutation.SetCreatedBy(i)
+	return ec
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (ec *EventCreate) SetCreatedAt(t time.Time) *EventCreate {
+	ec.mutation.SetCreatedAt(t)
+	return ec
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (ec *EventCreate) SetNillableCreatedAt(t *time.Time) *EventCreate {
+	if t != nil {
+		ec.SetCreatedAt(*t)
+	}
+	return ec
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (ec *EventCreate) SetUpdatedAt(t time.Time) *EventCreate {
+	ec.mutation.SetUpdatedAt(t)
+	return ec
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (ec *EventCreate) SetNillableUpdatedAt(t *time.Time) *EventCreate {
+	if t != nil {
+		ec.SetUpdatedAt(*t)
+	}
+	return ec
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (ec *EventCreate) SetDeletedAt(t time.Time) *EventCreate {
+	ec.mutation.SetDeletedAt(t)
+	return ec
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (ec *EventCreate) SetNillableDeletedAt(t *time.Time) *EventCreate {
+	if t != nil {
+		ec.SetDeletedAt(*t)
+	}
+	return ec
+}
+
+// SetUsersID sets the "users" edge to the User entity by ID.
+func (ec *EventCreate) SetUsersID(id int) *EventCreate {
+	ec.mutation.SetUsersID(id)
+	return ec
+}
+
+// SetUsers sets the "users" edge to the User entity.
+func (ec *EventCreate) SetUsers(u *User) *EventCreate {
+	return ec.SetUsersID(u.ID)
+}
+
 // Mutation returns the EventMutation object of the builder.
 func (ec *EventCreate) Mutation() *EventMutation {
 	return ec.mutation
@@ -25,6 +93,7 @@ func (ec *EventCreate) Mutation() *EventMutation {
 
 // Save creates the Event in the database.
 func (ec *EventCreate) Save(ctx context.Context) (*Event, error) {
+	ec.defaults()
 	return withHooks(ctx, ec.sqlSave, ec.mutation, ec.hooks)
 }
 
@@ -50,8 +119,40 @@ func (ec *EventCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (ec *EventCreate) defaults() {
+	if _, ok := ec.mutation.CreatedAt(); !ok {
+		v := event.DefaultCreatedAt()
+		ec.mutation.SetCreatedAt(v)
+	}
+	if _, ok := ec.mutation.UpdatedAt(); !ok {
+		v := event.DefaultUpdatedAt()
+		ec.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (ec *EventCreate) check() error {
+	if _, ok := ec.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Event.name"`)}
+	}
+	if v, ok := ec.mutation.Name(); ok {
+		if err := event.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Event.name": %w`, err)}
+		}
+	}
+	if _, ok := ec.mutation.CreatedBy(); !ok {
+		return &ValidationError{Name: "created_by", err: errors.New(`ent: missing required field "Event.created_by"`)}
+	}
+	if _, ok := ec.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Event.created_at"`)}
+	}
+	if _, ok := ec.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Event.updated_at"`)}
+	}
+	if _, ok := ec.mutation.UsersID(); !ok {
+		return &ValidationError{Name: "users", err: errors.New(`ent: missing required edge "Event.users"`)}
+	}
 	return nil
 }
 
@@ -78,6 +179,39 @@ func (ec *EventCreate) createSpec() (*Event, *sqlgraph.CreateSpec) {
 		_node = &Event{config: ec.config}
 		_spec = sqlgraph.NewCreateSpec(event.Table, sqlgraph.NewFieldSpec(event.FieldID, field.TypeInt))
 	)
+	if value, ok := ec.mutation.Name(); ok {
+		_spec.SetField(event.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := ec.mutation.CreatedAt(); ok {
+		_spec.SetField(event.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := ec.mutation.UpdatedAt(); ok {
+		_spec.SetField(event.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := ec.mutation.DeletedAt(); ok {
+		_spec.SetField(event.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
+	if nodes := ec.mutation.UsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   event.UsersTable,
+			Columns: []string{event.UsersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.CreatedBy = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -99,6 +233,7 @@ func (ecb *EventCreateBulk) Save(ctx context.Context) ([]*Event, error) {
 	for i := range ecb.builders {
 		func(i int, root context.Context) {
 			builder := ecb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*EventMutation)
 				if !ok {
