@@ -118,3 +118,50 @@ paths:
               email: { type: string, example: "メールアドレス" }
         500:
           description: "失敗"
+  #event一覧を取得
+  # /events:
+  #   #プリフライトリクエスト
+  #   options:
+  #     tags:
+  #       - events
+  #     summary: "イベント一覧を取得"
+  #     operationId: corsEvents
+  #     x-google-backend:
+  #       address: "https://backend-demo-747dpngw3q-an.a.run.app/events"
+  #     responses:
+  #       200:
+  #         description: "成功"
+  #         schema:
+  #           type: array
+  #           items:
+  #             type: object
+  #             properties:
+  #               id: {type: integer, example: eventId}
+  #               name: { type: string, example: "イベント名" }
+  #               created_by: { type: integer, example: userId }
+  #               created_at: { type: string, example: "作成時刻"}
+  #               update_at: {type: string, example: "口座番号"}
+  #       500:
+  #         description: "失敗"
+  #   get:
+  #     tags:
+  #       - users
+  #     summary: "ユーザー一覧を取得"
+  #     operationId: users
+  #     x-google-backend:
+  #       address: "https://backend-demo-747dpngw3q-an.a.run.app/users"
+  #     responses:
+  #       200:
+  #         description: "成功"
+  #         schema:
+  #          type: array
+  #          items:
+  #           type: object
+  #           properties:
+  #             id: {type: integer, example: eventId}
+  #             name: { type: string, example: "イベント名" }
+  #             created_by: { type: integer, example: userId }
+  #             created_at: { type: string, example: "作成時刻"}
+  #             update_at: {type: string, example: "口座番号"}
+  #       500:
+  #         description: "失敗"
