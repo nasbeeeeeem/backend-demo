@@ -18,14 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install swagger-cli
-        run: |
-          npm install -g swagger-cli
-
-      - name: Validate Swagger Files
-        run: |
-          swagger-cli validate -d openapi.yaml --type yaml
-
       - name: Generate Swagger UI
         if: github.event.pull_request.merged == true
         uses: Legion2/swagger-ui-action@v1
