@@ -1,0 +1,120 @@
+swagger: "2.0"
+info:
+  title: "Backend Demo"
+  description: "バックエンドAPIのデモ"
+  version: 1.0.0
+schemes:
+  - https
+produces:
+  - application/json
+tags:
+  - name: users
+    description: "ユーザーに関する情報"
+x-google-endpoints:
+  - name: "ignore cors"
+    allowCors: True
+securityDefinitions:
+  google_id_token:
+    authorizationUrl: ""
+    flow: "implicit"
+    type: "oauth2"
+    x-google-issuer: "https://accounts.google.com"
+    x-google-jwks_uri: "https://www.googleapis.com/oauth2/v3/certs"
+    x-google-audiences: "811974289373-2hp30dkitujdqh6402ckibg442fj94ph.apps.googleusercontent.com"
+  firebase:
+    authorizationUrl: ""
+    flow: "implicit"
+    type: "oauth2"
+    x-google-issuer: "https://securetoken.google.com/api-gateway-demo-404010"
+    x-google-jwks_uri: "https://www.googleapis.com/service_accounts/v1/metadata/x509/securetoken@system.gserviceaccount.com"
+    x-google-audiences: "api-gateway-demo-404010"
+paths:
+  # ユーザー一覧取得のエンドポイント
+  /users:
+    # プリフライトリクエストで使用
+    options:
+      tags:
+        - users
+      summary: "ユーザー一覧を取得"
+      operationId: corsUsers
+      x-google-backend:
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/users"
+      responses:
+        200:
+          description: "成功"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                name: { type: string, example: "ユーザー名" }
+                email: { type: string, example: "メールアドレス" }
+                potoUrl: { type: string, example "プロフィール画像のURL"}
+                accountCode: {type: string, example: "口座番号"}
+                bankCode: {type: string, example: "金融機関コード"}
+                branchCode: {type: string, example: "支店番号"}
+        500:
+          description: "失敗"
+    get:
+      tags:
+        - users
+      summary: "ユーザー一覧を取得"
+      operationId: users
+      x-google-backend:
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/users"
+      responses:
+        200:
+          description: "成功"
+          schema:
+           type: array
+           items:
+            type: object
+            properties:
+              name: {type: string, example: "ユーザー名"}
+              email: {type: string, example: "メールアドレス"}
+              potoUrl: { type: string, example "プロフィール画像のURL"}
+              accountCode: {type: string, example: "口座番号"}
+              bankCode: {type: string, example: "金融機関コード"}
+              branchCode: {type: string, example: "支店番号"}
+        500:
+          description: "失敗"
+  # 自身のユーザー情報を取得するエンドポイント
+  /users/me:
+    # プリフライトリクエストで使用
+    options:
+      tags:
+        - users
+      summary: "自分自身の情報を取得"
+      operationId: corsMe
+      x-google-backend:
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/users/me"
+      responses:
+        200:
+          description: "成功"
+          schema:
+            type: object
+            properties:
+              name: { type: string, example: "ユーザー名" }
+              email: { type: string, example: "メールアドレス" }
+        500:
+          description: "失敗"
+    get:
+      tags:
+        - users
+      summary: "自身の情報を取得"
+      security:
+        - google_id_token: []
+        - firebase: []
+      operationId: me
+      x-google-backend:
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/users/me"
+      responses:
+        200:
+          description: "成功"
+          schema:
+            type: object
+            properties:
+              name: { type: string, example: "ユーザー名" }
+              email: { type: string, example: "メールアドレス" }
+        500:
+          description: "失敗"
