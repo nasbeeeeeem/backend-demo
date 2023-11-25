@@ -3,6 +3,8 @@
 package payment
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 )
 
@@ -11,6 +13,22 @@ const (
 	Label = "payment"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldEventID holds the string denoting the event_id field in the database.
+	FieldEventID = "event_id"
+	// FieldAmount holds the string denoting the amount field in the database.
+	FieldAmount = "amount"
+	// FieldPaidBy holds the string denoting the paid_by field in the database.
+	FieldPaidBy = "paid_by"
+	// FieldPaidTo holds the string denoting the paid_to field in the database.
+	FieldPaidTo = "paid_to"
+	// FieldPaidAt holds the string denoting the paid_at field in the database.
+	FieldPaidAt = "paid_at"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// Table holds the table name of the payment in the database.
 	Table = "payments"
 )
@@ -18,6 +36,14 @@ const (
 // Columns holds all SQL columns for payment fields.
 var Columns = []string{
 	FieldID,
+	FieldEventID,
+	FieldAmount,
+	FieldPaidBy,
+	FieldPaidTo,
+	FieldPaidAt,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -30,10 +56,61 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// DefaultPaidAt holds the default value on creation for the "paid_at" field.
+	DefaultPaidAt func() time.Time
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
+)
+
 // OrderOption defines the ordering options for the Payment queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByEventID orders the results by the event_id field.
+func ByEventID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEventID, opts...).ToFunc()
+}
+
+// ByAmount orders the results by the amount field.
+func ByAmount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAmount, opts...).ToFunc()
+}
+
+// ByPaidBy orders the results by the paid_by field.
+func ByPaidBy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPaidBy, opts...).ToFunc()
+}
+
+// ByPaidTo orders the results by the paid_to field.
+func ByPaidTo(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPaidTo, opts...).ToFunc()
+}
+
+// ByPaidAt orders the results by the paid_at field.
+func ByPaidAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPaidAt, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }

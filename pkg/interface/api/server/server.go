@@ -78,12 +78,12 @@ func Server(dsn string) {
 	// }
 
 	// イベント関係のエンドポイント
-	event := r.Group("/event")
+	events := r.Group("/events")
 	{
 		// 作成
-		event.POST("/", eventHandler.HandleCreate)
+		events.POST("/", eventHandler.HandleCreate)
 		// 一覧参照
-		event.GET("/", eventHandler.HnadleEvents)
+		events.GET("/", eventHandler.HnadleEvents)
 		// ：idごとのイベント
 		// 参照
 		// event.GET("/:id")

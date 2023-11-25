@@ -79,6 +79,7 @@ func (h *handler) HandleMeInfo(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"token":       token,
+		"userId":      user.ID,
 		"name":        user.Name,
 		"email":       user.Email,
 		"photoUrl":    user.PhotoURL,

@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -27,6 +28,84 @@ func (pu *PaymentUpdate) Where(ps ...predicate.Payment) *PaymentUpdate {
 	return pu
 }
 
+// SetEventID sets the "event_id" field.
+func (pu *PaymentUpdate) SetEventID(i int) *PaymentUpdate {
+	pu.mutation.ResetEventID()
+	pu.mutation.SetEventID(i)
+	return pu
+}
+
+// AddEventID adds i to the "event_id" field.
+func (pu *PaymentUpdate) AddEventID(i int) *PaymentUpdate {
+	pu.mutation.AddEventID(i)
+	return pu
+}
+
+// SetAmount sets the "amount" field.
+func (pu *PaymentUpdate) SetAmount(i int) *PaymentUpdate {
+	pu.mutation.ResetAmount()
+	pu.mutation.SetAmount(i)
+	return pu
+}
+
+// AddAmount adds i to the "amount" field.
+func (pu *PaymentUpdate) AddAmount(i int) *PaymentUpdate {
+	pu.mutation.AddAmount(i)
+	return pu
+}
+
+// SetPaidBy sets the "paid_by" field.
+func (pu *PaymentUpdate) SetPaidBy(i int) *PaymentUpdate {
+	pu.mutation.ResetPaidBy()
+	pu.mutation.SetPaidBy(i)
+	return pu
+}
+
+// AddPaidBy adds i to the "paid_by" field.
+func (pu *PaymentUpdate) AddPaidBy(i int) *PaymentUpdate {
+	pu.mutation.AddPaidBy(i)
+	return pu
+}
+
+// SetPaidTo sets the "paid_to" field.
+func (pu *PaymentUpdate) SetPaidTo(i int) *PaymentUpdate {
+	pu.mutation.ResetPaidTo()
+	pu.mutation.SetPaidTo(i)
+	return pu
+}
+
+// AddPaidTo adds i to the "paid_to" field.
+func (pu *PaymentUpdate) AddPaidTo(i int) *PaymentUpdate {
+	pu.mutation.AddPaidTo(i)
+	return pu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (pu *PaymentUpdate) SetUpdatedAt(t time.Time) *PaymentUpdate {
+	pu.mutation.SetUpdatedAt(t)
+	return pu
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (pu *PaymentUpdate) SetDeletedAt(t time.Time) *PaymentUpdate {
+	pu.mutation.SetDeletedAt(t)
+	return pu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (pu *PaymentUpdate) SetNillableDeletedAt(t *time.Time) *PaymentUpdate {
+	if t != nil {
+		pu.SetDeletedAt(*t)
+	}
+	return pu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (pu *PaymentUpdate) ClearDeletedAt() *PaymentUpdate {
+	pu.mutation.ClearDeletedAt()
+	return pu
+}
+
 // Mutation returns the PaymentMutation object of the builder.
 func (pu *PaymentUpdate) Mutation() *PaymentMutation {
 	return pu.mutation
@@ -34,6 +113,7 @@ func (pu *PaymentUpdate) Mutation() *PaymentMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (pu *PaymentUpdate) Save(ctx context.Context) (int, error) {
+	pu.defaults()
 	return withHooks(ctx, pu.sqlSave, pu.mutation, pu.hooks)
 }
 
@@ -59,6 +139,14 @@ func (pu *PaymentUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (pu *PaymentUpdate) defaults() {
+	if _, ok := pu.mutation.UpdatedAt(); !ok {
+		v := payment.UpdateDefaultUpdatedAt()
+		pu.mutation.SetUpdatedAt(v)
+	}
+}
+
 func (pu *PaymentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(payment.Table, payment.Columns, sqlgraph.NewFieldSpec(payment.FieldID, field.TypeInt))
 	if ps := pu.mutation.predicates; len(ps) > 0 {
@@ -67,6 +155,39 @@ func (pu *PaymentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := pu.mutation.EventID(); ok {
+		_spec.SetField(payment.FieldEventID, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.AddedEventID(); ok {
+		_spec.AddField(payment.FieldEventID, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.Amount(); ok {
+		_spec.SetField(payment.FieldAmount, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.AddedAmount(); ok {
+		_spec.AddField(payment.FieldAmount, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.PaidBy(); ok {
+		_spec.SetField(payment.FieldPaidBy, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.AddedPaidBy(); ok {
+		_spec.AddField(payment.FieldPaidBy, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.PaidTo(); ok {
+		_spec.SetField(payment.FieldPaidTo, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.AddedPaidTo(); ok {
+		_spec.AddField(payment.FieldPaidTo, field.TypeInt, value)
+	}
+	if value, ok := pu.mutation.UpdatedAt(); ok {
+		_spec.SetField(payment.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := pu.mutation.DeletedAt(); ok {
+		_spec.SetField(payment.FieldDeletedAt, field.TypeTime, value)
+	}
+	if pu.mutation.DeletedAtCleared() {
+		_spec.ClearField(payment.FieldDeletedAt, field.TypeTime)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -86,6 +207,84 @@ type PaymentUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *PaymentMutation
+}
+
+// SetEventID sets the "event_id" field.
+func (puo *PaymentUpdateOne) SetEventID(i int) *PaymentUpdateOne {
+	puo.mutation.ResetEventID()
+	puo.mutation.SetEventID(i)
+	return puo
+}
+
+// AddEventID adds i to the "event_id" field.
+func (puo *PaymentUpdateOne) AddEventID(i int) *PaymentUpdateOne {
+	puo.mutation.AddEventID(i)
+	return puo
+}
+
+// SetAmount sets the "amount" field.
+func (puo *PaymentUpdateOne) SetAmount(i int) *PaymentUpdateOne {
+	puo.mutation.ResetAmount()
+	puo.mutation.SetAmount(i)
+	return puo
+}
+
+// AddAmount adds i to the "amount" field.
+func (puo *PaymentUpdateOne) AddAmount(i int) *PaymentUpdateOne {
+	puo.mutation.AddAmount(i)
+	return puo
+}
+
+// SetPaidBy sets the "paid_by" field.
+func (puo *PaymentUpdateOne) SetPaidBy(i int) *PaymentUpdateOne {
+	puo.mutation.ResetPaidBy()
+	puo.mutation.SetPaidBy(i)
+	return puo
+}
+
+// AddPaidBy adds i to the "paid_by" field.
+func (puo *PaymentUpdateOne) AddPaidBy(i int) *PaymentUpdateOne {
+	puo.mutation.AddPaidBy(i)
+	return puo
+}
+
+// SetPaidTo sets the "paid_to" field.
+func (puo *PaymentUpdateOne) SetPaidTo(i int) *PaymentUpdateOne {
+	puo.mutation.ResetPaidTo()
+	puo.mutation.SetPaidTo(i)
+	return puo
+}
+
+// AddPaidTo adds i to the "paid_to" field.
+func (puo *PaymentUpdateOne) AddPaidTo(i int) *PaymentUpdateOne {
+	puo.mutation.AddPaidTo(i)
+	return puo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (puo *PaymentUpdateOne) SetUpdatedAt(t time.Time) *PaymentUpdateOne {
+	puo.mutation.SetUpdatedAt(t)
+	return puo
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (puo *PaymentUpdateOne) SetDeletedAt(t time.Time) *PaymentUpdateOne {
+	puo.mutation.SetDeletedAt(t)
+	return puo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (puo *PaymentUpdateOne) SetNillableDeletedAt(t *time.Time) *PaymentUpdateOne {
+	if t != nil {
+		puo.SetDeletedAt(*t)
+	}
+	return puo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (puo *PaymentUpdateOne) ClearDeletedAt() *PaymentUpdateOne {
+	puo.mutation.ClearDeletedAt()
+	return puo
 }
 
 // Mutation returns the PaymentMutation object of the builder.
@@ -108,6 +307,7 @@ func (puo *PaymentUpdateOne) Select(field string, fields ...string) *PaymentUpda
 
 // Save executes the query and returns the updated Payment entity.
 func (puo *PaymentUpdateOne) Save(ctx context.Context) (*Payment, error) {
+	puo.defaults()
 	return withHooks(ctx, puo.sqlSave, puo.mutation, puo.hooks)
 }
 
@@ -130,6 +330,14 @@ func (puo *PaymentUpdateOne) Exec(ctx context.Context) error {
 func (puo *PaymentUpdateOne) ExecX(ctx context.Context) {
 	if err := puo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (puo *PaymentUpdateOne) defaults() {
+	if _, ok := puo.mutation.UpdatedAt(); !ok {
+		v := payment.UpdateDefaultUpdatedAt()
+		puo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -158,6 +366,39 @@ func (puo *PaymentUpdateOne) sqlSave(ctx context.Context) (_node *Payment, err e
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := puo.mutation.EventID(); ok {
+		_spec.SetField(payment.FieldEventID, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.AddedEventID(); ok {
+		_spec.AddField(payment.FieldEventID, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.Amount(); ok {
+		_spec.SetField(payment.FieldAmount, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.AddedAmount(); ok {
+		_spec.AddField(payment.FieldAmount, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.PaidBy(); ok {
+		_spec.SetField(payment.FieldPaidBy, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.AddedPaidBy(); ok {
+		_spec.AddField(payment.FieldPaidBy, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.PaidTo(); ok {
+		_spec.SetField(payment.FieldPaidTo, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.AddedPaidTo(); ok {
+		_spec.AddField(payment.FieldPaidTo, field.TypeInt, value)
+	}
+	if value, ok := puo.mutation.UpdatedAt(); ok {
+		_spec.SetField(payment.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := puo.mutation.DeletedAt(); ok {
+		_spec.SetField(payment.FieldDeletedAt, field.TypeTime, value)
+	}
+	if puo.mutation.DeletedAtCleared() {
+		_spec.ClearField(payment.FieldDeletedAt, field.TypeTime)
 	}
 	_node = &Payment{config: puo.config}
 	_spec.Assign = _node.assignValues

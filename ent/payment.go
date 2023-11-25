@@ -6,6 +6,7 @@ import (
 	"backend-demo/ent/payment"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -13,9 +14,25 @@ import (
 
 // Payment is the model entity for the Payment schema.
 type Payment struct {
-	config
+	config `json:"-"`
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
+	// EventID holds the value of the "event_id" field.
+	EventID int `json:"event_id,omitempty"`
+	// Amount holds the value of the "amount" field.
+	Amount int `json:"amount,omitempty"`
+	// PaidBy holds the value of the "paid_by" field.
+	PaidBy int `json:"paid_by,omitempty"`
+	// PaidTo holds the value of the "paid_to" field.
+	PaidTo int `json:"paid_to,omitempty"`
+	// PaidAt holds the value of the "paid_at" field.
+	PaidAt time.Time `json:"paid_at,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -24,8 +41,10 @@ func (*Payment) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case payment.FieldID:
+		case payment.FieldID, payment.FieldEventID, payment.FieldAmount, payment.FieldPaidBy, payment.FieldPaidTo:
 			values[i] = new(sql.NullInt64)
+		case payment.FieldPaidAt, payment.FieldCreatedAt, payment.FieldUpdatedAt, payment.FieldDeletedAt:
+			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -47,6 +66,55 @@ func (pa *Payment) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			pa.ID = int(value.Int64)
+		case payment.FieldEventID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field event_id", values[i])
+			} else if value.Valid {
+				pa.EventID = int(value.Int64)
+			}
+		case payment.FieldAmount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field amount", values[i])
+			} else if value.Valid {
+				pa.Amount = int(value.Int64)
+			}
+		case payment.FieldPaidBy:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field paid_by", values[i])
+			} else if value.Valid {
+				pa.PaidBy = int(value.Int64)
+			}
+		case payment.FieldPaidTo:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field paid_to", values[i])
+			} else if value.Valid {
+				pa.PaidTo = int(value.Int64)
+			}
+		case payment.FieldPaidAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field paid_at", values[i])
+			} else if value.Valid {
+				pa.PaidAt = value.Time
+			}
+		case payment.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				pa.CreatedAt = value.Time
+			}
+		case payment.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				pa.UpdatedAt = value.Time
+			}
+		case payment.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				pa.DeletedAt = new(time.Time)
+				*pa.DeletedAt = value.Time
+			}
 		default:
 			pa.selectValues.Set(columns[i], values[i])
 		}
@@ -82,7 +150,32 @@ func (pa *Payment) Unwrap() *Payment {
 func (pa *Payment) String() string {
 	var builder strings.Builder
 	builder.WriteString("Payment(")
-	builder.WriteString(fmt.Sprintf("id=%v", pa.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", pa.ID))
+	builder.WriteString("event_id=")
+	builder.WriteString(fmt.Sprintf("%v", pa.EventID))
+	builder.WriteString(", ")
+	builder.WriteString("amount=")
+	builder.WriteString(fmt.Sprintf("%v", pa.Amount))
+	builder.WriteString(", ")
+	builder.WriteString("paid_by=")
+	builder.WriteString(fmt.Sprintf("%v", pa.PaidBy))
+	builder.WriteString(", ")
+	builder.WriteString("paid_to=")
+	builder.WriteString(fmt.Sprintf("%v", pa.PaidTo))
+	builder.WriteString(", ")
+	builder.WriteString("paid_at=")
+	builder.WriteString(pa.PaidAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(pa.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(pa.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := pa.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

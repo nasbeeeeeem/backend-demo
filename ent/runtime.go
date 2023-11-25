@@ -5,6 +5,7 @@ package ent
 import (
 	"backend-demo/ent/bank"
 	"backend-demo/ent/event"
+	"backend-demo/ent/payment"
 	"backend-demo/ent/schema"
 	"backend-demo/ent/user"
 	"time"
@@ -55,6 +56,22 @@ func init() {
 	event.DefaultUpdatedAt = eventDescUpdatedAt.Default.(func() time.Time)
 	// event.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	event.UpdateDefaultUpdatedAt = eventDescUpdatedAt.UpdateDefault.(func() time.Time)
+	paymentFields := schema.Payment{}.Fields()
+	_ = paymentFields
+	// paymentDescPaidAt is the schema descriptor for paid_at field.
+	paymentDescPaidAt := paymentFields[4].Descriptor()
+	// payment.DefaultPaidAt holds the default value on creation for the paid_at field.
+	payment.DefaultPaidAt = paymentDescPaidAt.Default.(func() time.Time)
+	// paymentDescCreatedAt is the schema descriptor for created_at field.
+	paymentDescCreatedAt := paymentFields[5].Descriptor()
+	// payment.DefaultCreatedAt holds the default value on creation for the created_at field.
+	payment.DefaultCreatedAt = paymentDescCreatedAt.Default.(func() time.Time)
+	// paymentDescUpdatedAt is the schema descriptor for updated_at field.
+	paymentDescUpdatedAt := paymentFields[6].Descriptor()
+	// payment.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	payment.DefaultUpdatedAt = paymentDescUpdatedAt.Default.(func() time.Time)
+	// payment.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	payment.UpdateDefaultUpdatedAt = paymentDescUpdatedAt.UpdateDefault.(func() time.Time)
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescName is the schema descriptor for name field.

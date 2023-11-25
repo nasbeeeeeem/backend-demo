@@ -5,7 +5,9 @@ package ent
 import (
 	"backend-demo/ent/payment"
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -18,6 +20,86 @@ type PaymentCreate struct {
 	hooks    []Hook
 }
 
+// SetEventID sets the "event_id" field.
+func (pc *PaymentCreate) SetEventID(i int) *PaymentCreate {
+	pc.mutation.SetEventID(i)
+	return pc
+}
+
+// SetAmount sets the "amount" field.
+func (pc *PaymentCreate) SetAmount(i int) *PaymentCreate {
+	pc.mutation.SetAmount(i)
+	return pc
+}
+
+// SetPaidBy sets the "paid_by" field.
+func (pc *PaymentCreate) SetPaidBy(i int) *PaymentCreate {
+	pc.mutation.SetPaidBy(i)
+	return pc
+}
+
+// SetPaidTo sets the "paid_to" field.
+func (pc *PaymentCreate) SetPaidTo(i int) *PaymentCreate {
+	pc.mutation.SetPaidTo(i)
+	return pc
+}
+
+// SetPaidAt sets the "paid_at" field.
+func (pc *PaymentCreate) SetPaidAt(t time.Time) *PaymentCreate {
+	pc.mutation.SetPaidAt(t)
+	return pc
+}
+
+// SetNillablePaidAt sets the "paid_at" field if the given value is not nil.
+func (pc *PaymentCreate) SetNillablePaidAt(t *time.Time) *PaymentCreate {
+	if t != nil {
+		pc.SetPaidAt(*t)
+	}
+	return pc
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (pc *PaymentCreate) SetCreatedAt(t time.Time) *PaymentCreate {
+	pc.mutation.SetCreatedAt(t)
+	return pc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (pc *PaymentCreate) SetNillableCreatedAt(t *time.Time) *PaymentCreate {
+	if t != nil {
+		pc.SetCreatedAt(*t)
+	}
+	return pc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (pc *PaymentCreate) SetUpdatedAt(t time.Time) *PaymentCreate {
+	pc.mutation.SetUpdatedAt(t)
+	return pc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (pc *PaymentCreate) SetNillableUpdatedAt(t *time.Time) *PaymentCreate {
+	if t != nil {
+		pc.SetUpdatedAt(*t)
+	}
+	return pc
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (pc *PaymentCreate) SetDeletedAt(t time.Time) *PaymentCreate {
+	pc.mutation.SetDeletedAt(t)
+	return pc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (pc *PaymentCreate) SetNillableDeletedAt(t *time.Time) *PaymentCreate {
+	if t != nil {
+		pc.SetDeletedAt(*t)
+	}
+	return pc
+}
+
 // Mutation returns the PaymentMutation object of the builder.
 func (pc *PaymentCreate) Mutation() *PaymentMutation {
 	return pc.mutation
@@ -25,6 +107,7 @@ func (pc *PaymentCreate) Mutation() *PaymentMutation {
 
 // Save creates the Payment in the database.
 func (pc *PaymentCreate) Save(ctx context.Context) (*Payment, error) {
+	pc.defaults()
 	return withHooks(ctx, pc.sqlSave, pc.mutation, pc.hooks)
 }
 
@@ -50,8 +133,45 @@ func (pc *PaymentCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (pc *PaymentCreate) defaults() {
+	if _, ok := pc.mutation.PaidAt(); !ok {
+		v := payment.DefaultPaidAt()
+		pc.mutation.SetPaidAt(v)
+	}
+	if _, ok := pc.mutation.CreatedAt(); !ok {
+		v := payment.DefaultCreatedAt()
+		pc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := pc.mutation.UpdatedAt(); !ok {
+		v := payment.DefaultUpdatedAt()
+		pc.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (pc *PaymentCreate) check() error {
+	if _, ok := pc.mutation.EventID(); !ok {
+		return &ValidationError{Name: "event_id", err: errors.New(`ent: missing required field "Payment.event_id"`)}
+	}
+	if _, ok := pc.mutation.Amount(); !ok {
+		return &ValidationError{Name: "amount", err: errors.New(`ent: missing required field "Payment.amount"`)}
+	}
+	if _, ok := pc.mutation.PaidBy(); !ok {
+		return &ValidationError{Name: "paid_by", err: errors.New(`ent: missing required field "Payment.paid_by"`)}
+	}
+	if _, ok := pc.mutation.PaidTo(); !ok {
+		return &ValidationError{Name: "paid_to", err: errors.New(`ent: missing required field "Payment.paid_to"`)}
+	}
+	if _, ok := pc.mutation.PaidAt(); !ok {
+		return &ValidationError{Name: "paid_at", err: errors.New(`ent: missing required field "Payment.paid_at"`)}
+	}
+	if _, ok := pc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Payment.created_at"`)}
+	}
+	if _, ok := pc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Payment.updated_at"`)}
+	}
 	return nil
 }
 
@@ -78,6 +198,38 @@ func (pc *PaymentCreate) createSpec() (*Payment, *sqlgraph.CreateSpec) {
 		_node = &Payment{config: pc.config}
 		_spec = sqlgraph.NewCreateSpec(payment.Table, sqlgraph.NewFieldSpec(payment.FieldID, field.TypeInt))
 	)
+	if value, ok := pc.mutation.EventID(); ok {
+		_spec.SetField(payment.FieldEventID, field.TypeInt, value)
+		_node.EventID = value
+	}
+	if value, ok := pc.mutation.Amount(); ok {
+		_spec.SetField(payment.FieldAmount, field.TypeInt, value)
+		_node.Amount = value
+	}
+	if value, ok := pc.mutation.PaidBy(); ok {
+		_spec.SetField(payment.FieldPaidBy, field.TypeInt, value)
+		_node.PaidBy = value
+	}
+	if value, ok := pc.mutation.PaidTo(); ok {
+		_spec.SetField(payment.FieldPaidTo, field.TypeInt, value)
+		_node.PaidTo = value
+	}
+	if value, ok := pc.mutation.PaidAt(); ok {
+		_spec.SetField(payment.FieldPaidAt, field.TypeTime, value)
+		_node.PaidAt = value
+	}
+	if value, ok := pc.mutation.CreatedAt(); ok {
+		_spec.SetField(payment.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := pc.mutation.UpdatedAt(); ok {
+		_spec.SetField(payment.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := pc.mutation.DeletedAt(); ok {
+		_spec.SetField(payment.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
+	}
 	return _node, _spec
 }
 
@@ -99,6 +251,7 @@ func (pcb *PaymentCreateBulk) Save(ctx context.Context) ([]*Payment, error) {
 	for i := range pcb.builders {
 		func(i int, root context.Context) {
 			builder := pcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*PaymentMutation)
 				if !ok {
