@@ -118,50 +118,96 @@ paths:
               email: { type: string, example: "メールアドレス" }
         500:
           description: "失敗"
+          
+  # グループ関係のエンドポイント
+  # /groups:
+  # 支払い関係のエンドポイント
+  # /payment:
+  # イベント関係のエンドポイント
   #event一覧を取得
-  # /events:
-  #   #プリフライトリクエスト
-  #   options:
-  #     tags:
-  #       - events
-  #     summary: "イベント一覧を取得"
-  #     operationId: corsEvents
-  #     x-google-backend:
-  #       address: "https://backend-demo-747dpngw3q-an.a.run.app/events"
-  #     responses:
-  #       200:
-  #         description: "成功"
-  #         schema:
-  #           type: array
-  #           items:
-  #             type: object
-  #             properties:
-  #               id: {type: integer, example: eventId}
-  #               name: { type: string, example: "イベント名" }
-  #               created_by: { type: integer, example: userId }
-  #               created_at: { type: string, example: "作成時刻"}
-  #               update_at: {type: string, example: "口座番号"}
-  #       500:
-  #         description: "失敗"
-  #   get:
-  #     tags:
-  #       - users
-  #     summary: "ユーザー一覧を取得"
-  #     operationId: users
-  #     x-google-backend:
-  #       address: "https://backend-demo-747dpngw3q-an.a.run.app/users"
-  #     responses:
-  #       200:
-  #         description: "成功"
-  #         schema:
-  #          type: array
-  #          items:
-  #           type: object
-  #           properties:
-  #             id: {type: integer, example: eventId}
-  #             name: { type: string, example: "イベント名" }
-  #             created_by: { type: integer, example: userId }
-  #             created_at: { type: string, example: "作成時刻"}
-  #             update_at: {type: string, example: "口座番号"}
-  #       500:
-  #         description: "失敗"
+  /events:
+    #プリフライトリクエスト
+    options:
+      tags:
+        - events
+      summary: "イベント一覧を取得"
+      operationId: corsEvents
+      x-google-backend:
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/events"
+      responses:
+        200:
+          description: "成功"
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id: {type: integer, example: eventId}
+                name: { type: string, example: "イベント名" }
+                created_by: { type: integer, example: userId }
+                created_at: { type: string, example: "作成時刻"}
+                update_at: {type: string, example: "口座番号"}
+        500:
+          description: "失敗"
+    get:
+      tags:
+        - events
+      summary: "イベント一覧を取得"
+      operationId: getEvents
+      x-google-backend:
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/users"
+      responses:
+        200:
+          description: "成功"
+          schema:
+           type: array
+           items:
+            type: object
+            properties:
+              id: {type: integer, example: eventId}
+              name: { type: string, example: "イベント名" }
+              created_by: { type: integer, example: userId }
+              created_at: { type: string, example: "作成時刻"}
+              update_at: {type: string, example: "口座番号"}
+        500:
+          description: "失敗"
+    post:
+      tags:
+        - events
+      summary: "イベントの登録"
+      operationId: create_Events
+      x-google-backend:
+        address: "https://backend-demo-747dpngw3q-an.a.run.app/users"
+      produces: 
+      - "application/json"
+      # リクエストのbodyについて記述する
+      parameters:
+      # パラメータの名前
+      - name: "body"
+        # パラメータの場所
+        in: "body"
+        required: true
+        schema:
+          type: "object"
+          properties:
+            name:
+              type: "string"
+              example: "eventName"
+            userId:
+              type: integer
+              example: 1
+      responses:
+        200:
+          description: "成功"
+          schema:
+           type: array
+           items:
+            type: object
+            properties:
+              id: {type: integer, example: eventId}
+              name: { type: string, example: "イベント名" }
+              created_by: { type: integer, example: userId }
+              created_at: { type: string, example: "作成時刻"}
+              update_at: {type: string, example: "口座番号"}
+        500:
+          description: "失敗"

@@ -47,6 +47,11 @@ func Server(dsn string) {
 	config.AllowCredentials = true
 	r.Use(cors.New(config))
 
+	// グループ関係のエンドポイント
+	groups := r.Group("/groups")
+	{
+		groups.POST("/")
+	}
 	// ユーザー関係のエンドポイント
 	users := r.Group("/users")
 	{
