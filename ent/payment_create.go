@@ -200,7 +200,7 @@ func (pc *PaymentCreate) createSpec() (*Payment, *sqlgraph.CreateSpec) {
 	)
 	if value, ok := pc.mutation.EventID(); ok {
 		_spec.SetField(payment.FieldEventID, field.TypeInt, value)
-		_node.EventID = value
+		_node.EventID = &value
 	}
 	if value, ok := pc.mutation.Amount(); ok {
 		_spec.SetField(payment.FieldAmount, field.TypeInt, value)

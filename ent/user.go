@@ -48,9 +48,11 @@ type UserEdges struct {
 	Banks *Bank `json:"banks,omitempty"`
 	// Events holds the value of the events edge.
 	Events []*Event `json:"events,omitempty"`
+	// Groups holds the value of the groups edge.
+	Groups []*Group `json:"groups,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // BanksOrErr returns the Banks value or an error if the edge
@@ -73,6 +75,15 @@ func (e UserEdges) EventsOrErr() ([]*Event, error) {
 		return e.Events, nil
 	}
 	return nil, &NotLoadedError{edge: "events"}
+}
+
+// GroupsOrErr returns the Groups value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) GroupsOrErr() ([]*Group, error) {
+	if e.loadedTypes[2] {
+		return e.Groups, nil
+	}
+	return nil, &NotLoadedError{edge: "groups"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -186,6 +197,11 @@ func (u *User) QueryBanks() *BankQuery {
 // QueryEvents queries the "events" edge of the User entity.
 func (u *User) QueryEvents() *EventQuery {
 	return NewUserClient(u.config).QueryEvents(u)
+}
+
+// QueryGroups queries the "groups" edge of the User entity.
+func (u *User) QueryGroups() *GroupQuery {
+	return NewUserClient(u.config).QueryGroups(u)
 }
 
 // Update returns a builder for updating this User.

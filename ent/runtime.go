@@ -5,6 +5,7 @@ package ent
 import (
 	"backend-demo/ent/bank"
 	"backend-demo/ent/event"
+	"backend-demo/ent/group"
 	"backend-demo/ent/payment"
 	"backend-demo/ent/schema"
 	"backend-demo/ent/user"
@@ -56,6 +57,12 @@ func init() {
 	event.DefaultUpdatedAt = eventDescUpdatedAt.Default.(func() time.Time)
 	// event.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	event.UpdateDefaultUpdatedAt = eventDescUpdatedAt.UpdateDefault.(func() time.Time)
+	groupFields := schema.Group{}.Fields()
+	_ = groupFields
+	// groupDescName is the schema descriptor for name field.
+	groupDescName := groupFields[0].Descriptor()
+	// group.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	group.NameValidator = groupDescName.Validators[0].(func(string) error)
 	paymentFields := schema.Payment{}.Fields()
 	_ = paymentFields
 	// paymentDescPaidAt is the schema descriptor for paid_at field.

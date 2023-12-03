@@ -16,6 +16,8 @@ type Tx struct {
 	Bank *BankClient
 	// Event is the client for interacting with the Event builders.
 	Event *EventClient
+	// Group is the client for interacting with the Group builders.
+	Group *GroupClient
 	// Payment is the client for interacting with the Payment builders.
 	Payment *PaymentClient
 	// User is the client for interacting with the User builders.
@@ -153,6 +155,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Bank = NewBankClient(tx.config)
 	tx.Event = NewEventClient(tx.config)
+	tx.Group = NewGroupClient(tx.config)
 	tx.Payment = NewPaymentClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }

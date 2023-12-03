@@ -17,7 +17,8 @@ type Event struct {
 func (Event) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("name").NotEmpty(), //イベント名
-		field.Int("created_by"),
+		field.Int("created_by"),         //イベント作成者
+		// field.Int("group_id"), //グループid
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 		field.Time("deleted_at").Nillable().Optional(),

@@ -5,6 +5,7 @@ package ent
 import (
 	"backend-demo/ent/bank"
 	"backend-demo/ent/event"
+	"backend-demo/ent/group"
 	"backend-demo/ent/payment"
 	"backend-demo/ent/user"
 	"context"
@@ -78,6 +79,7 @@ func checkColumn(table, column string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			bank.Table:    bank.ValidColumn,
 			event.Table:   event.ValidColumn,
+			group.Table:   group.ValidColumn,
 			payment.Table: payment.ValidColumn,
 			user.Table:    user.ValidColumn,
 		})

@@ -18,7 +18,7 @@ type Payment struct {
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// EventID holds the value of the "event_id" field.
-	EventID int `json:"event_id,omitempty"`
+	EventID *int `json:"event_id,omitempty"`
 	// Amount holds the value of the "amount" field.
 	Amount int `json:"amount,omitempty"`
 	// PaidBy holds the value of the "paid_by" field.
@@ -70,7 +70,8 @@ func (pa *Payment) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field event_id", values[i])
 			} else if value.Valid {
-				pa.EventID = int(value.Int64)
+				pa.EventID = new(int)
+				*pa.EventID = int(value.Int64)
 			}
 		case payment.FieldAmount:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -151,8 +152,10 @@ func (pa *Payment) String() string {
 	var builder strings.Builder
 	builder.WriteString("Payment(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", pa.ID))
-	builder.WriteString("event_id=")
-	builder.WriteString(fmt.Sprintf("%v", pa.EventID))
+	if v := pa.EventID; v != nil {
+		builder.WriteString("event_id=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("amount=")
 	builder.WriteString(fmt.Sprintf("%v", pa.Amount))

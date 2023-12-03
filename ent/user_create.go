@@ -5,6 +5,7 @@ package ent
 import (
 	"backend-demo/ent/bank"
 	"backend-demo/ent/event"
+	"backend-demo/ent/group"
 	"backend-demo/ent/user"
 	"context"
 	"errors"
@@ -148,6 +149,21 @@ func (uc *UserCreate) AddEvents(e ...*Event) *UserCreate {
 		ids[i] = e[i].ID
 	}
 	return uc.AddEventIDs(ids...)
+}
+
+// AddGroupIDs adds the "groups" edge to the Group entity by IDs.
+func (uc *UserCreate) AddGroupIDs(ids ...int) *UserCreate {
+	uc.mutation.AddGroupIDs(ids...)
+	return uc
+}
+
+// AddGroups adds the "groups" edges to the Group entity.
+func (uc *UserCreate) AddGroups(g ...*Group) *UserCreate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return uc.AddGroupIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -309,6 +325,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(event.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.GroupsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.GroupsTable,
+			Columns: user.GroupsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(group.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

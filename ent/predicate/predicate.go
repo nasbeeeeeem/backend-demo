@@ -12,6 +12,9 @@ type Bank func(*sql.Selector)
 // Event is the predicate function for event builders.
 type Event func(*sql.Selector)
 
+// Group is the predicate function for group builders.
+type Group func(*sql.Selector)
+
 // Payment is the predicate function for payment builders.
 type Payment func(*sql.Selector)
 
