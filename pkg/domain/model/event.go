@@ -7,5 +7,5 @@ type Event struct {
 	Name            string `gorm:"not null"`
 	CreatedBy       uint
 	GroupID         uint
-	PaymentsEventID []Payments `gorm:"foreignKey:EventID"`
+	PaymentsEventID []Payment `gorm:"foreignKey:EventID"`
 }

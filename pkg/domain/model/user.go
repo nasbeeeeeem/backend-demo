@@ -7,6 +7,6 @@ type User struct {
 	Name           string      `gorm:"not null"`
 	Email          string      `gorm:"not null;unique"`
 	GroupUsers     []GroupUser `gorm:"foreignKey:UserID"`
-	PaymentsPaidBy []Payments  `gorm:"foreignKey:PaidBy"`
-	PaymentsPaidTo []Payments  `gorm:"foreignKey:PaidTo"`
+	PaymentsPaidBy []Payment   `gorm:"foreignKey:PaidBy"`
+	PaymentsPaidTo []Payment   `gorm:"foreignKey:PaidTo"`
 }
