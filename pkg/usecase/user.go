@@ -1,30 +1,30 @@
 package usecase
 
 import (
-	"backend-demo/ent"
+	"backend-demo/pkg/domain/model"
 	"backend-demo/pkg/domain/repository"
 	"context"
 	"time"
 )
 
-type UseCase interface {
-	Create(c context.Context, name string, email string) (*ent.User, error)
-	MeInfo(c context.Context, email string) (*ent.User, error)
-	Users(c context.Context) ([]*ent.User, error)
-	Update(c context.Context, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) error
+type UserUseCase interface {
+	MeInfo(c context.Context, email string) (*model.User, error)
+	Users(c context.Context) ([]*model.User, error)
+	Update(c context.Context, id int, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) (*model.User, error)
+	Delete(c context.Context, id int) (*model.User, error)
 }
 
-type useCase struct {
+type userUseCase struct {
 	repository repository.UserRepository
 	timeout    time.Duration
 }
 
-// Create implements UseCase.
-func (uc *useCase) Create(c context.Context, name string, email string) (*ent.User, error) {
-	ctx, cancel := context.WithTimeout(c, uc.timeout)
+// MeInfo implements UserUseCase.
+func (uu *userUseCase) MeInfo(c context.Context, email string) (*model.User, error) {
+	ctx, cancel := context.WithTimeout(c, uu.timeout)
 	defer cancel()
 
-	newUser, err := uc.repository.CreateUser(ctx, name, email)
+	newUser, err := uu.repository.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -32,12 +32,12 @@ func (uc *useCase) Create(c context.Context, name string, email string) (*ent.Us
 	return newUser, nil
 }
 
-// MeInfo implements UseCase.
-func (uc *useCase) MeInfo(c context.Context, email string) (*ent.User, error) {
-	ctx, cancel := context.WithTimeout(c, uc.timeout)
+// Users implements UserUseCase.
+func (uu *userUseCase) Users(c context.Context) ([]*model.User, error) {
+	ctx, cancel := context.WithTimeout(c, uu.timeout)
 	defer cancel()
 
-	user, err := uc.repository.GetUserByEmail(ctx, email)
+	user, err := uu.repository.GetUsers(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -45,33 +45,34 @@ func (uc *useCase) MeInfo(c context.Context, email string) (*ent.User, error) {
 	return user, nil
 }
 
-// Users implements UseCase.
-func (uc *useCase) Users(c context.Context) ([]*ent.User, error) {
-	ctx, cancel := context.WithTimeout(c, uc.timeout)
+// Update implements UserUseCase.
+func (uu *userUseCase) Update(c context.Context, id int, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) (*model.User, error) {
+	ctx, cancel := context.WithTimeout(c, uu.timeout)
 	defer cancel()
 
-	users, err := uc.repository.GetUsers(ctx)
+	updateUser, err := uu.repository.UpdateUser(ctx, id, name, email, photoUrl, accountCode, bankCode, branchCode)
 	if err != nil {
 		return nil, err
 	}
 
-	return users, nil
+	return updateUser, nil
 }
 
-// Update implements UseCase.
-func (uc *useCase) Update(c context.Context, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) error {
-	ctx, cancel := context.WithTimeout(c, uc.timeout)
+// Delete implements UserUseCase.
+func (uu *userUseCase) Delete(c context.Context, id int) (*model.User, error) {
+	ctx, cancel := context.WithTimeout(c, uu.timeout)
 	defer cancel()
 
-	err := uc.repository.UpdateUser(ctx, name, email, photoUrl, accountCode, bankCode, branchCode)
+	deleteUser, err := uu.repository.DeleteUser(ctx, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	return deleteUser, nil
 }
 
-func NewUseCase(userRepo repository.UserRepository) UseCase {
-	return &useCase{
+func NewUseCase(userRepo repository.UserRepository) UserUseCase {
+	return &userUseCase{
 		repository: userRepo,
 	}
 }

@@ -1,11 +1,13 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Event struct {
 	gorm.Model
 	Name            string `gorm:"not null"`
 	CreatedBy       uint
 	GroupID         uint
-	PaymentsEventID []Payment `gorm:"foreignKey:EventID"`
+	PaymentsEventID []Payment `gorm:"fogreignKey:EventID"`
 }

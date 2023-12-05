@@ -10,38 +10,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Handler interface {
-	HandleCreate(c *gin.Context)
-	HandleUsers(c *gin.Context)
+type UserHandler interface {
+	// HandleCreate(c *gin.Context)
 	HandleMeInfo(c *gin.Context)
+	HandleUsers(c *gin.Context)
 	HandleUpdate(c *gin.Context)
+	HandleDelete(c *gin.Context)
 }
 
-type handler struct {
-	useCase usecase.UseCase
-}
-
-func (h *handler) HandleCreate(c *gin.Context) {
-	type request struct {
-		Name  string `json:"name"`
-		Email string `json:"email"`
-	}
-
-	r := new(request)
-	if err := c.Bind(&r); err != nil {
-		c.AbortWithStatus(http.StatusBadRequest)
-	}
-
-	newUser, err := h.useCase.Create(c, r.Name, r.Email)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	}
-
-	c.JSON(http.StatusOK, gin.H{"user": newUser})
+type userHandler struct {
+	useCase usecase.UserUseCase
 }
 
 // handleByEmail implements Handler.
-func (h *handler) HandleMeInfo(c *gin.Context) {
+func (h *userHandler) HandleMeInfo(c *gin.Context) {
 	type request struct {
 		Iss            string `json:"iss"`
 		Azp            string `json:"azp"`
@@ -90,7 +72,7 @@ func (h *handler) HandleMeInfo(c *gin.Context) {
 }
 
 // handleUsers implements Handler.
-func (h *handler) HandleUsers(c *gin.Context) {
+func (h *userHandler) HandleUsers(c *gin.Context) {
 	users, err := h.useCase.Users(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -102,8 +84,9 @@ func (h *handler) HandleUsers(c *gin.Context) {
 }
 
 // HandleUpdate implements Handler.
-func (h *handler) HandleUpdate(c *gin.Context) {
+func (h *userHandler) HandleUpdate(c *gin.Context) {
 	type request struct {
+		ID          int    `json:"id"`
 		Name        string `json:"name"`
 		Email       string `json:"email"`
 		PhotoUrl    string `json:"photoUrl"`
@@ -116,16 +99,51 @@ func (h *handler) HandleUpdate(c *gin.Context) {
 	if err := c.Bind(&r); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
-	err := h.useCase.Update(c, r.Name, r.Email, r.PhotoUrl, r.AccountCode, r.BankCode, r.BranchCode)
+
+	updateUser, err := h.useCase.Update(c, r.ID, r.Name, r.Email, r.PhotoUrl, r.AccountCode, r.BankCode, r.BranchCode)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"userId":      updateUser.ID,
+			"name":        updateUser.Name,
+			"email":       updateUser.Email,
+			"photoUrl":    updateUser.PhotoURL,
+			"accountCode": updateUser.AccountCode,
+			"bankCode":    updateUser.BankCode,
+			"branchCode":  updateUser.BranchCode,
+		})
 	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "update successfully."})
 }
 
-func NewHandler(userUseCase usecase.UseCase) Handler {
-	return &handler{
+func (h *userHandler) HandleDelete(c *gin.Context) {
+	type request struct {
+		ID int `json:"id"`
+	}
+
+	r := new(request)
+	if err := c.Bind(&r); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+	}
+
+	deleteUser, err := h.useCase.Delete(c, r.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"userId":      deleteUser.ID,
+			"name":        deleteUser.Name,
+			"email":       deleteUser.Email,
+			"photoUrl":    deleteUser.PhotoURL,
+			"accountCode": deleteUser.AccountCode,
+			"bankCode":    deleteUser.BankCode,
+			"branchCode":  deleteUser.BranchCode,
+		})
+	}
+}
+
+func NewUserHandler(userUseCase usecase.UserUseCase) UserHandler {
+	return &userHandler{
 		useCase: userUseCase,
 	}
 }

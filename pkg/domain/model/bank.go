@@ -1,8 +1,7 @@
 package model
 
-import "gorm.io/gorm"
-
 type Bank struct {
-	gorm.Model
-	Name string `gorm:"not null"`
+	ID    string `gorm:"primaryKey"`
+	Name  string `gorm:"not null"`
+	Users []User `gorm:"foreignKey:BankCode;references:ID"`
 }

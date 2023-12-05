@@ -21,13 +21,13 @@ func Ping(c *gin.Context) {
 // サーバーの起動処理
 func Server(dsn string) {
 	// 依存性の注入
-	dbClient, err := database.NewClient(dsn)
+	dbClient, err := database.Conn(dsn)
 	if err != nil {
 		panic(err)
 	}
 	userRepoImpl := repositoryimpl.NewUserRepoImpl(dbClient)
 	userUseCase := usecase.NewUseCase(userRepoImpl)
-	userHandler := handler.NewHandler(userUseCase)
+	userHandler := handler.NewUserHandler(userUseCase)
 
 	eventRepoImpl := repositoryimpl.NewEventRepoImpl(dbClient)
 	eventUseCase := usecase.NewEventUseCase(eventRepoImpl)
@@ -55,14 +55,14 @@ func Server(dsn string) {
 	// ユーザー関係のエンドポイント
 	users := r.Group("/users")
 	{
-		// ユーザーの作成
-		users.POST("/", userHandler.HandleCreate)
 		// 全ユーザの取得
 		users.GET("/", userHandler.HandleUsers)
 		// 自分の取得
 		users.GET("/me", userHandler.HandleMeInfo)
-		// プロフィールの更新
+		// ユーザーの更新
 		users.PUT("/me", userHandler.HandleUpdate)
+		// ユーザーの削除
+		users.DELETE("/me", userHandler.HandleDelete)
 	}
 
 	// 支払い関係のエンドポイント

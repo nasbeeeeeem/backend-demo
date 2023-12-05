@@ -1,117 +1,73 @@
 package repositoryimpl
 
 import (
-	"backend-demo/ent"
-	"backend-demo/ent/user"
+	"backend-demo/pkg/domain/model"
 	"backend-demo/pkg/domain/repository"
 	"backend-demo/pkg/infrastructure/database"
 	"context"
 )
 
 type userRepoImpl struct {
-	DBClient *database.Client
+	DBClient *database.Engine
 }
 
-func NewUserRepoImpl(client *database.Client) repository.UserRepository {
+func NewUserRepoImpl(client *database.Engine) repository.UserRepository {
 	return &userRepoImpl{
 		DBClient: client,
 	}
 }
 
-// UpdateUser implements repository.UserRepository.
-func (u *userRepoImpl) UpdateUser(c context.Context, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) error {
-	_, err := u.DBClient.Client.User.Update().
-		SetName(name).
-		SetPhotoURL(photoUrl).
-		SetAccountCode(accountCode).
-		SetBankCode(bankCode).
-		SetBranchCode(branchCode).
-		Where(user.Email(email)).
-		Save(context.Background())
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// トランザクション制御のヘルパー関数
-// func WithTx(ctx context.Context, client *ent.Client, fn func(tx *ent.Tx) error) error {
-// 	tx, err := client.Tx(ctx)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer func() {
-// 		if v := recover(); v != nil {
-// 			tx.Rollback()
-// 			panic(v)
-// 		}
-// 	}()
-// 	if err := fn(tx); err != nil {
-// 		if rerr := tx.Rollback(); rerr != nil {
-// 			err = fmt.Errorf("%w: rolling back transaction: %v", err, rerr)
-// 		}
-// 		return err
-// 	}
-// 	if err := tx.Commit(); err != nil {
-// 		return fmt.Errorf("committing transaction: %w", err)
-// 	}
-// 	return nil
-// }
-
-// ユーザーの登録
-func (u *userRepoImpl) CreateUser(c context.Context, name string, email string) (*ent.User, error) {
-	// err := WithTx(c, u.DBClient.Client, func(tx *ent.Tx) error {
-	// 	user, err := tx.User.Create().SetName(name).SetEmail(email).Save(c)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	return nil
-	// })
-
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// return user, nil
-
-	// tx, err := u.DBClient.Client.Tx(c)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// defer tx.Rollback()
-
-	newUser, err := u.DBClient.Client.User.Create().SetName(name).SetEmail(email).SetBankCode("0005").Save(context.Background())
-	if err != nil {
-		// if rerr := tx.Rollback(); rerr != nil {
-		// 	err = rerr
-		// }
-		return nil, err
-	}
-
-	// if err := tx.Commit(); err != nil {
-	// 	return nil, err
-	// }
-
-	return newUser, nil
-}
-
 // 全ユーザーの取得
-func (u *userRepoImpl) GetUsers(c context.Context) ([]*ent.User, error) {
-	users, err := u.DBClient.Client.User.Query().Where().All(context.Background())
-	if err != nil {
-		return nil, err
+func (u *userRepoImpl) GetUsers(c context.Context) ([]*model.User, error) {
+	var users []*model.User
+	result := u.DBClient.Engine.Find(&users)
+
+	if result.Error != nil {
+		return nil, result.Error
 	}
 
 	return users, nil
 }
 
 // Emailと一致するユーザーを取得
-func (u *userRepoImpl) GetUserByEmail(c context.Context, email string) (*ent.User, error) {
-	user, err := u.DBClient.Client.User.Query().Where(user.Email(email)).Only(context.Background())
-	if err != nil {
-		return nil, err
+func (u *userRepoImpl) GetUserByEmail(c context.Context, email string) (*model.User, error) {
+	var user *model.User
+	resutl := u.DBClient.Engine.Where("email = ?", email).Find(&user)
+
+	if resutl.Error != nil {
+		return nil, resutl.Error
 	}
 
 	return user, nil
+}
+
+// プロフィール情報の更新
+func (u *userRepoImpl) UpdateUser(c context.Context, id int, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) (*model.User, error) {
+	var updateUser *model.User
+	// 更新対象のユーザー情報の取得
+	result := u.DBClient.Engine.First(&updateUser, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	// 対象のユーザー情報の更新
+	result = u.DBClient.Engine.Model(&updateUser).Updates(model.User{Name: name, Email: email, PhotoURL: photoUrl, AccountCode: accountCode, BankCode: bankCode, BranchCode: bankCode})
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return updateUser, nil
+}
+
+// ユーザーの削除
+func (u *userRepoImpl) DeleteUser(c context.Context, id int) (*model.User, error) {
+	var deleteUser *model.User
+
+	result := u.DBClient.Engine.Delete(&deleteUser, id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return deleteUser, nil
 }

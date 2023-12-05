@@ -1,18 +1,17 @@
 package usecase
 
 import (
-	"backend-demo/ent"
+	"backend-demo/pkg/domain/model"
 	"backend-demo/pkg/domain/repository"
 	"context"
 	"time"
 )
 
 type EventUseCase interface {
-	Create(c context.Context, name string, userId int) (*ent.Event, error)
-	Events(c context.Context) ([]*ent.Event, error)
-	// EventsById(c context.Context, userId int) ([]*ent.Event, error)
-	Update(c context.Context, eventId int) (*ent.Event, error)
-	Delete(c context.Context, eventId int) (*ent.Event, error)
+	Create(c context.Context, name string, userId int) (*model.Event, error)
+	Events(c context.Context) ([]*model.Event, error)
+	Update(c context.Context, eventId int) (*model.Event, error)
+	Delete(c context.Context, eventId int) (*model.Event, error)
 }
 
 type eventUseCase struct {
@@ -21,7 +20,7 @@ type eventUseCase struct {
 }
 
 // Create implements EventUseCase.
-func (eu *eventUseCase) Create(c context.Context, name string, userId int) (*ent.Event, error) {
+func (eu *eventUseCase) Create(c context.Context, name string, userId int) (*model.Event, error) {
 	ctx, cancel := context.WithTimeout(c, eu.timeout)
 	defer cancel()
 
@@ -34,7 +33,7 @@ func (eu *eventUseCase) Create(c context.Context, name string, userId int) (*ent
 }
 
 // Events implements EventUseCase.
-func (eu *eventUseCase) Events(c context.Context) ([]*ent.Event, error) {
+func (eu *eventUseCase) Events(c context.Context) ([]*model.Event, error) {
 	ctx, cancel := context.WithTimeout(c, eu.timeout)
 	defer cancel()
 
@@ -47,7 +46,7 @@ func (eu *eventUseCase) Events(c context.Context) ([]*ent.Event, error) {
 }
 
 // Update implements EventUseCase.
-func (eu *eventUseCase) Update(c context.Context, eventId int) (*ent.Event, error) {
+func (eu *eventUseCase) Update(c context.Context, eventId int) (*model.Event, error) {
 	ctx, cancel := context.WithTimeout(c, eu.timeout)
 	defer cancel()
 
@@ -60,7 +59,7 @@ func (eu *eventUseCase) Update(c context.Context, eventId int) (*ent.Event, erro
 }
 
 // Delete implements EventUseCase.
-func (eu *eventUseCase) Delete(c context.Context, eventId int) (*ent.Event, error) {
+func (eu *eventUseCase) Delete(c context.Context, eventId int) (*model.Event, error) {
 	ctx, cancel := context.WithTimeout(c, eu.timeout)
 	defer cancel()
 

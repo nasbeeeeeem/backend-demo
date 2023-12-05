@@ -1,13 +1,13 @@
 package repository
 
 import (
-	"backend-demo/ent"
+	"backend-demo/pkg/domain/model"
 	"context"
 )
 
 type UserRepository interface {
-	CreateUser(c context.Context, name string, email string) (*ent.User, error)
-	GetUsers(c context.Context) ([]*ent.User, error)
-	GetUserByEmail(c context.Context, email string) (*ent.User, error)
-	UpdateUser(c context.Context, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) error
+	GetUsers(c context.Context) ([]*model.User, error)
+	GetUserByEmail(c context.Context, email string) (*model.User, error)
+	UpdateUser(c context.Context, id int, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) (*model.User, error)
+	DeleteUser(c context.Context, id int) (*model.User, error)
 }
