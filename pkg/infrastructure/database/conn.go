@@ -14,7 +14,7 @@ type Engine struct {
 
 // DBのコネクション
 func Conn(dsn string) (*Engine, error) {
-	db, err := gorm.Open(postgres.Open("host=localhost user=postgres password=root dbname=gorm_db port=5432 sslmode=disable TimeZone=Asia/Tokyo"), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
@@ -31,12 +31,12 @@ func Conn(dsn string) (*Engine, error) {
 
 	db.Create(&bank)
 
-	user := model.User{
+	user1 := model.User{
 		Name:  "nas",
 		Email: "vividnasubi@gmail.com",
 		// BankCode: bank.ID,
 	}
-	db.Create(&user)
+	db.Create(&user1)
 
 	group := model.Group{
 		Name: "SampleGroup",
@@ -44,7 +44,7 @@ func Conn(dsn string) (*Engine, error) {
 	db.Create(&group)
 
 	groupUser := model.GroupUser{
-		UserID:  user.ID,
+		UserID:  user1.ID,
 		GroupID: group.ID,
 	}
 	db.Create(&groupUser)
@@ -58,11 +58,39 @@ func Conn(dsn string) (*Engine, error) {
 
 	payment := model.Payment{
 		EventID: event.ID,
-		PaidBy:  user.ID,
-		PaidTo:  user.ID,
+		PaidBy:  user1.ID,
+		PaidTo:  user1.ID,
 		Amount:  1000,
 	}
 	db.Create(&payment)
+
+	user2 := model.User{
+		Name:  "rom",
+		Email: "3103rom@gmail.com",
+		// BankCode: bank.ID,
+	}
+	db.Create(&user2)
+
+	groupUser2 := model.GroupUser{
+		UserID:  user2.ID,
+		GroupID: group.ID,
+	}
+	db.Create(&groupUser2)
+
+	event2 := model.Event{
+		Name:      "SampleEvent2",
+		CreatedBy: groupUser2.UserID,
+		GroupID:   groupUser2.GroupID,
+	}
+	db.Create(&event2)
+
+	payment2 := model.Payment{
+		EventID: event.ID,
+		PaidBy:  user1.ID,
+		PaidTo:  user1.ID,
+		Amount:  2000,
+	}
+	db.Create(&payment2)
 
 	fmt.Print("Sample data created successfully")
 
