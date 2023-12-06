@@ -14,13 +14,17 @@ type Engine struct {
 
 // DBのコネクション
 func Conn(dsn string) (*Engine, error) {
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	localDsn := "host=localhost port=5432 user=postgres password=root dbname=gorm_db sslmode=disable"
+	db, err := gorm.Open(postgres.Open(localDsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
 
+	// dbの削除
+	if err := db.Migrator().DropTable(&model.Bank{}, &model.User{}, &model.Group{}, &model.GroupUser{}, &model.Event{}, &model.Payment{}); err != nil {
+		return nil, err
+	}
 	// dbのマイグレーション
-	// db.AutoMigrate(&model.Bank{})
 	db.AutoMigrate(&model.Bank{}, &model.User{}, &model.Group{}, &model.GroupUser{}, &model.Event{}, &model.Payment{})
 
 	// サンプルデータの登録
@@ -28,54 +32,48 @@ func Conn(dsn string) (*Engine, error) {
 		ID:   "0005",
 		Name: "三菱UFJ銀行",
 	}
-
 	db.Create(&bank)
 
 	user1 := model.User{
 		Name:  "nas",
 		Email: "vividnasubi@gmail.com",
-		// BankCode: bank.ID,
 	}
 	db.Create(&user1)
+
+	user2 := model.User{
+		Name:  "rom",
+		Email: "3103rom@gmail.com",
+	}
+	db.Create(&user2)
 
 	group := model.Group{
 		Name: "SampleGroup",
 	}
 	db.Create(&group)
 
-	groupUser := model.GroupUser{
+	group2 := model.Group{
+		Name: "SampleGroup2",
+	}
+	db.Create(&group2)
+
+	groupUser1 := model.GroupUser{
 		UserID:  user1.ID,
 		GroupID: group.ID,
 	}
-	db.Create(&groupUser)
-
-	event := model.Event{
-		Name:      "SampleEvent",
-		CreatedBy: groupUser.UserID,
-		GroupID:   groupUser.GroupID,
-	}
-	db.Create(&event)
-
-	payment := model.Payment{
-		EventID: event.ID,
-		PaidBy:  user1.ID,
-		PaidTo:  user1.ID,
-		Amount:  1000,
-	}
-	db.Create(&payment)
-
-	user2 := model.User{
-		Name:  "rom",
-		Email: "3103rom@gmail.com",
-		// BankCode: bank.ID,
-	}
-	db.Create(&user2)
+	db.Create(&groupUser1)
 
 	groupUser2 := model.GroupUser{
 		UserID:  user2.ID,
-		GroupID: group.ID,
+		GroupID: group2.ID,
 	}
 	db.Create(&groupUser2)
+
+	event1 := model.Event{
+		Name:      "SampleEvent",
+		CreatedBy: groupUser1.UserID,
+		GroupID:   groupUser1.GroupID,
+	}
+	db.Create(&event1)
 
 	event2 := model.Event{
 		Name:      "SampleEvent2",
@@ -84,9 +82,17 @@ func Conn(dsn string) (*Engine, error) {
 	}
 	db.Create(&event2)
 
-	payment2 := model.Payment{
-		EventID: event.ID,
+	payment1 := model.Payment{
+		EventID: event1.ID,
 		PaidBy:  user1.ID,
+		PaidTo:  user2.ID,
+		Amount:  1000,
+	}
+	db.Create(&payment1)
+
+	payment2 := model.Payment{
+		EventID: event2.ID,
+		PaidBy:  user2.ID,
 		PaidTo:  user1.ID,
 		Amount:  2000,
 	}
