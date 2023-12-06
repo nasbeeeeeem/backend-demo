@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,16 +35,16 @@ func Server(dsn string) {
 	r = gin.Default()
 
 	// CORSの設定
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000", "https://fetch-api-sample-747dpngw3q-an.a.run.app", "https://fetch-api.haebeal.net"}
-	config.AddAllowHeaders(
-		"Authorization",
-		"Access-Token",
-		"Access-Control-Allow-Headers",
-		"Access-Control-Allow-Origin",
-	)
-	config.AllowCredentials = true
-	r.Use(cors.New(config))
+	// config := cors.DefaultConfig()
+	// config.AllowOrigins = []string{"http://localhost:3000", "https://fetch-api-sample-747dpngw3q-an.a.run.app", "https://fetch-api.haebeal.net"}
+	// config.AddAllowHeaders(
+	// 	"Authorization",
+	// 	"Access-Token",
+	// 	"Access-Control-Allow-Headers",
+	// 	"Access-Control-Allow-Origin",
+	// )
+	// config.AllowCredentials = true
+	// r.Use(cors.New(config))
 
 	// グループ関係のエンドポイント
 	groups := r.Group("/groups")
