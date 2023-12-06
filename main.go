@@ -23,7 +23,7 @@ func main() {
 	}
 
 	// シークレットneon_dsnへのアクセス
-	resourceName := "projects/466355925872/secrets/neon_dsn/versions/latest"
+	resourceName := "projects/466355925872/secrets/neon_dsn/versions/1"
 	req := &secretmanagerpb.AccessSecretVersionRequest{
 		Name: resourceName,
 	}
