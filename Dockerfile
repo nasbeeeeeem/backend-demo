@@ -8,5 +8,7 @@ COPY . .
 RUN go mod tidy
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o $ROOT/binary
+
 EXPOSE 8080
+
 CMD ["/go/src/app/binary"]
