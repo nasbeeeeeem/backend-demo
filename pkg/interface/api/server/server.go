@@ -29,9 +29,9 @@ func Server(dsn string) {
 	userUseCase := usecase.NewUseCase(userRepoImpl)
 	userHandler := handler.NewUserHandler(userUseCase)
 
-	eventRepoImpl := repositoryimpl.NewEventRepoImpl(dbClient)
-	eventUseCase := usecase.NewEventUseCase(eventRepoImpl)
-	eventHandler := handler.NewEventtHandler(eventUseCase)
+	// eventRepoImpl := repositoryimpl.NewEventRepoImpl(dbClient)
+	// eventUseCase := usecase.NewEventUseCase(eventRepoImpl)
+	// eventHandler := handler.NewEventtHandler(eventUseCase)
 
 	r = gin.Default()
 
@@ -83,12 +83,12 @@ func Server(dsn string) {
 	// }
 
 	// イベント関係のエンドポイント
-	events := r.Group("/events")
+	// events := r.Group("/events")
 	{
 		// 作成
-		events.POST("/", eventHandler.HandleCreate)
+		// events.POST("/", eventHandler.HandleCreate)
 		// 一覧参照
-		events.GET("/", eventHandler.HnadleEvents)
+		// events.GET("/", eventHandler.HnadleEvents)
 		// ：idごとのイベント
 		// 参照
 		// event.GET("/:id")
