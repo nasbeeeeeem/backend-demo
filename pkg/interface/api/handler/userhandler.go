@@ -2,9 +2,6 @@ package handler
 
 import (
 	"backend-demo/pkg/usecase"
-	"encoding/base64"
-	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,34 +22,10 @@ type userHandler struct {
 // handleByEmail implements Handler.
 func (h *userHandler) HandleMeInfo(c *gin.Context) {
 	type request struct {
-		Iss            string `json:"iss"`
-		Azp            string `json:"azp"`
-		Aud            string `json:"aud"`
-		Sub            string `json:"sub"`
-		Email          string `json:"email"`
-		Email_verified bool   `json:"email_verified"`
-		At_hash        string `json:"at_hash"`
-		Name           string `json:"name"`
-		Picture        string `json:"picture"`
-		Given_name     string `json:"given_name"`
-		Family_name    string `json:"family_name"`
-		Locale         string `json:"locale"`
-		Iat            int64  `json:"iat"`
-		Exp            int64  `json:"exp"`
+		Email string `json:"email"`
 	}
 
 	requestBody := new(request)
-
-	token := c.Request.Header.Get("Access-Token")
-	jwt := c.Request.Header.Get("X-Apigateway-Api-Userinfo")
-	dec, err := base64.RawURLEncoding.DecodeString(jwt)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := json.Unmarshal(dec, &requestBody); err != nil {
-		log.Fatal(err)
-	}
 
 	user, err := h.useCase.MeInfo(c.Request.Context(), requestBody.Email)
 	if err != nil {
@@ -60,7 +33,6 @@ func (h *userHandler) HandleMeInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"token":       token,
 		"userId":      user.ID,
 		"name":        user.Name,
 		"email":       user.Email,
