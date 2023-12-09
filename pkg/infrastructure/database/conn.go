@@ -15,7 +15,7 @@ type Engine struct {
 // DBのコネクション
 func Conn(dsn string) (*Engine, error) {
 	// localDsn := "host=localhost port=5432 user=postgres password=root dbname=gorm_db sslmode=disable"
-	db, err := gorm.Open(postgres.Open("postgresql://nasbeeeeeem:j1qzFMinVZY2@ep-yellow-snow-32012490.ap-southeast-1.aws.neon.tech/demo?sslmode=require"), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open("postgresql://nasbeeeeeem:j1qzFMinVZY2@ep-yellow-snow-32012490.ap-southeast-1.aws.neon.tech/demo?sslmode=require&TimeZone=Asia/Tokyo"), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
