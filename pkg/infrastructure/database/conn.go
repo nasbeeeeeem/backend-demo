@@ -20,6 +20,13 @@ func Conn(dsn string) (*Engine, error) {
 		return nil, err
 	}
 
+	// DBのタイムゾーンを設定
+	result := db.Exec("ALTER DATABASE demo SET timezone TO 'Asia/Tokyo'")
+	if result.Error != nil {
+		fmt.Println("Error executing SQL:", result.Error)
+		return nil, result.Error
+	}
+
 	// dbの削除
 	if err := db.Migrator().DropTable(&model.Bank{}, &model.User{}, &model.Group{}, &model.GroupUser{}, &model.Event{}, &model.Payment{}); err != nil {
 		return nil, err
