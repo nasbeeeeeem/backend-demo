@@ -45,13 +45,13 @@ func (u *userRepoImpl) GetUserByEmail(c context.Context, email string) (*model.U
 func (u *userRepoImpl) UpdateUser(c context.Context, id int, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) (*model.User, error) {
 	var updateUser *model.User
 	// 更新対象のユーザー情報の取得
-	result := u.DBClient.Engine.First(&updateUser, id)
-	if result.Error != nil {
-		return nil, result.Error
-	}
+	// result := u.DBClient.Engine.First(&updateUser, id)
+	// if result.Error != nil {
+	// 	return nil, result.Error
+	// }
 
 	// 対象のユーザー情報の更新
-	result = u.DBClient.Engine.Model(&updateUser).Updates(model.User{Name: name, Email: email, PhotoURL: photoUrl, AccountCode: accountCode, BankCode: bankCode, BranchCode: bankCode})
+	result := u.DBClient.Engine.Where("id = ?", id).Model(&updateUser).Updates(model.User{Name: name, Email: email, PhotoURL: photoUrl, AccountCode: accountCode, BankCode: bankCode, BranchCode: bankCode})
 	if result.Error != nil {
 		return nil, result.Error
 	}
