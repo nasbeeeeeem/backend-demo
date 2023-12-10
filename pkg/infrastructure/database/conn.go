@@ -27,11 +27,11 @@ func Conn(dsn string) (*Engine, error) {
 		return nil, result.Error
 	}
 
-	// dbの削除
+	// テーブルの削除
 	if err := db.Migrator().DropTable(&model.Bank{}, &model.User{}, &model.Group{}, &model.GroupUser{}, &model.Event{}, &model.Payment{}); err != nil {
 		return nil, err
 	}
-	// dbのマイグレーション
+	// テーブルのマイグレーション
 	db.AutoMigrate(&model.Bank{}, &model.User{}, &model.Group{}, &model.GroupUser{}, &model.Event{}, &model.Payment{})
 
 	// サンプルデータの登録
