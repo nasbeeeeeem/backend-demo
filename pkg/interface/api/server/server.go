@@ -52,7 +52,7 @@ func Server(dsn string) {
 		groups.POST("/")
 	}
 	// ユーザー関係のエンドポイント
-	users := r.Group("/users")
+	users := r.Group("/api/users")
 	{
 		// 全ユーザの取得
 		users.GET("/", userHandler.HandleUsers)
