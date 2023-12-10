@@ -29,6 +29,18 @@ func (u *userRepoImpl) GetUsers(c context.Context) ([]*model.User, error) {
 	return users, nil
 }
 
+// idと一致するユーザーを取得
+func (u *userRepoImpl) GetUserByID(c context.Context, id int) (*model.User, error) {
+	var user *model.User
+	result := u.DBClient.Engine.Where("id = ?", id).Find(&user)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return user, nil
+}
+
 // Emailと一致するユーザーを取得
 func (u *userRepoImpl) GetUserByEmail(c context.Context, email string) (*model.User, error) {
 	var user *model.User
@@ -51,9 +63,15 @@ func (u *userRepoImpl) UpdateUser(c context.Context, id int, name string, email 
 	// }
 
 	// 対象のユーザー情報の更新
-	result := u.DBClient.Engine.Where("id = ?", id).Model(&updateUser).Updates(model.User{Name: name, Email: email, PhotoURL: photoUrl, AccountCode: accountCode, BankCode: bankCode, BranchCode: bankCode})
+	result := u.DBClient.Engine.Where("id = ?", id).Model(&updateUser).Updates(model.User{Name: name, Email: email, PhotoURL: photoUrl, AccountCode: accountCode, BankCode: bankCode, BranchCode: branchCode})
 	if result.Error != nil {
 		return nil, result.Error
+	}
+
+	// 更新ユーザーの情報を取得
+	updateUser, err := u.GetUserByID(c, id)
+	if err != nil {
+		return nil, err
 	}
 
 	return updateUser, nil
